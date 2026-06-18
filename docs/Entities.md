@@ -5,6 +5,7 @@ Entities list
 - User
 - Organization
 - Membership
+- Invitation
 - Client
 - ServiceCatalog
 - Invoice
