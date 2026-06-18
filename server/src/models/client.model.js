@@ -1,6 +1,58 @@
 import mongoose, { Schema } from "mongoose";
 
-const clientSchema = new Schema({}, { timestamps: true });
+const clientSchema = new Schema({
+    organization: {
+        type: Schema.Types.ObjectId,
+        ref: "Organization",
+        required: true,
+        index: true,
+    },
+
+    name: {
+        type: String,
+        required: true,
+        trim: true,
+        maxlength: 150,
+    },
+
+    email: {
+        type: String,
+        trim: true,
+        lowercase: true,
+    },
+
+    phone: {
+        type: String,
+        trim: true,
+    },
+
+    companyName: {
+        type: String,
+        trim: true,
+        maxlength: 150,
+    },
+
+    address: {
+        type: String,
+        trim: true,
+    },
+
+    taxId: {
+        type: String,
+        trim: true,
+    },
+
+    isActive: {
+        type: Boolean,
+        default: true,
+    },
+
+    createdBy: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    },
+});
 
 const Client = mongoose.model("Client", clientSchema);
 
