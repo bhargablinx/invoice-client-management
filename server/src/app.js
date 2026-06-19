@@ -3,6 +3,8 @@ import cors from "cors";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
 import healthRouter from "./routes/healthCheck.route.js";
+import userRouter from "./routes/user.route.js";
+import errorHandler from "./middlewares/errorHandler.middleware.js";
 
 const app = express();
 
@@ -16,5 +18,8 @@ app.use(express.urlencoded());
 app.use(cookieParser());
 
 app.use("/api/v1/healthcheck", healthRouter);
+app.use("/api/v1/user", userRouter);
+
+app.use(errorHandler);
 
 export default app;
