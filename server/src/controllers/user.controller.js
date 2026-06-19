@@ -86,6 +86,9 @@ const login = asyncHandler(async (req, res) => {
 
     const user = await User.findOne({ email: email.toLowerCase() });
 
+    if (!user.isEmailVerified)
+        throw new ApiError(403, "Please verify your email before logging in");
+
     if (!user) throw new ApiError(401, "Invalid Email or Password!!");
 
     const isPassValid = await user.isPasswordCorrect(password); // user not User to access its methods
