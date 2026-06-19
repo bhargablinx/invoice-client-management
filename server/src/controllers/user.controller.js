@@ -31,17 +31,22 @@ const generateToken = async (userId) => {
 
 const signup = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
-    const avatarPath = req.file.path;
 
     if (!name || !email || !password)
         throw new ApiError(400, "Required Filed is Missing!");
+
+    if (!req.file) throw new ApiError(400, "Avatar is required!");
 
     const existingUser = await User.findOne({ email: email });
 
     if (existingUser)
         throw new ApiError(400, "User already exists with this email!");
 
+    const avatarPath = req.file.path;
     const cloudinaryResponse = await uploadToCloudinary(avatarPath);
+    if (!cloudinaryResponse) {
+        throw new ApiError(500, "Failed to upload avatar");
+    }
     const avatar = cloudinaryResponse.url;
 
     const user = await User.create({
@@ -51,8 +56,12 @@ const signup = asyncHandler(async (req, res) => {
         avatar,
     });
 
+    const createdUser = await User.findById(user._id).select(
+        "-password -refreshToken"
+    );
+
     res.status(200).json(
-        new ApiResponse(200, user, "User registered successfully!")
+        new ApiResponse(200, createdUser, "User registered successfully!")
     );
 });
 
