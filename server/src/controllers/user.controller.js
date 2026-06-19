@@ -3,6 +3,7 @@ import ApiError from "../utils/ApiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import User from "../models/user.model.js";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary.js";
+import crypto from "crypto";
 
 const cookieOption = {
     httpOnly: true,
@@ -56,12 +57,23 @@ const signup = asyncHandler(async (req, res) => {
         avatar,
     });
 
-    const createdUser = await User.findById(user._id).select(
-        "-password -refreshToken"
-    );
+    const unHashedEmailToken = crypto.randomBytes(32).toString("hex");
+    const hashedEmailToken = crypto
+        .createHash("sha256")
+        .update(unHashedEmailToken)
+        .digest("hex");
+    user.emailVerificationToken = hashedEmailToken;
+    user.emailVerificationTokenExpiry = Date.now() + 1000 * 60 * 60; // 1 hour
+    // const verificationUrl = `http://localhost:8000/api/v1/verify-email/${unHashedEmailToken}`;
+
+    await user.save({ validateBeforeSave: false });
 
     res.status(200).json(
-        new ApiResponse(200, createdUser, "User registered successfully!")
+        new ApiResponse(
+            200,
+            unHashedEmailToken,
+            "User registered successfully and verification url sent to your email!"
+        )
     );
 });
 
