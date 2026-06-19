@@ -57,21 +57,13 @@ const signup = asyncHandler(async (req, res) => {
         avatar,
     });
 
-    const unHashedEmailToken = crypto.randomBytes(32).toString("hex");
-    const hashedEmailToken = crypto
-        .createHash("sha256")
-        .update(unHashedEmailToken)
-        .digest("hex");
-    user.emailVerificationToken = hashedEmailToken;
-    user.emailVerificationTokenExpiry = Date.now() + 1000 * 60 * 60; // 1 hour
-    // const verificationUrl = `http://localhost:8000/api/v1/verify-email/${unHashedEmailToken}`;
-
+    const verificationToken = user.generateEmailToken();
     await user.save({ validateBeforeSave: false });
 
     res.status(200).json(
         new ApiResponse(
             200,
-            unHashedEmailToken,
+            verificationToken,
             "User registered successfully and verification url sent to your email!"
         )
     );
