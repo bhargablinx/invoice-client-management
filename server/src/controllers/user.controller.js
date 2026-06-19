@@ -4,6 +4,31 @@ import asyncHandler from "../utils/asyncHandler.js";
 import User from "../models/user.model.js";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary.js";
 
+const cookieOption = {
+    httpOnly: true,
+    secure: true,
+};
+
+const generateToken = async (userId) => {
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        const accessToken = await user.generateAccessToken();
+        const refreshToken = await user.generateRefreshToken();
+
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false });
+
+        return { accessToken, refreshToken };
+    } catch (error) {
+        console.log("Server error: Generating token", error);
+        throw error;
+    }
+};
+
 const signup = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
     const avatarPath = req.file.path;
@@ -31,4 +56,30 @@ const signup = asyncHandler(async (req, res) => {
     );
 });
 
-export { signup };
+const login = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        throw new ApiError(400, "Email and password are required");
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) throw new ApiError(401, "Invalid Email or Password!!");
+
+    const isPassValid = await user.isPasswordCorrect(password); // user not User to access its methods
+    if (!isPassValid) throw new ApiError(401, "Invalid email or password!!");
+
+    const { accessToken, refreshToken } = await generateToken(user._id);
+
+    const loggedInUser = await User.findById(user._id).select(
+        "-password -refreshToken"
+    );
+
+    res.status(200)
+        .cookie("accessToken", accessToken, cookieOption)
+        .cookie("refreshToken", refreshToken, cookieOption)
+        .json(new ApiResponse(200, loggedInUser, "Login successful"));
+});
+
+export { signup, login };
