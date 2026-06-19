@@ -2,6 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import { type } from "os";
 
 const userSchema = new Schema(
     {
@@ -25,6 +26,14 @@ const userSchema = new Schema(
             required: true,
             minlength: 8,
             // select: false,
+        },
+
+        passwordRecoveryToken: {
+            type: String,
+        },
+
+        passwordResetTokenExpiry: {
+            type: Date,
         },
 
         avatar: {
@@ -95,6 +104,20 @@ userSchema.methods.generateEmailToken = function () {
         .digest("hex");
     this.emailVerificationTokenExpiry = Date.now() + 1000 * 60 * 60;
     return unHashedToken;
+};
+
+// Generate Password Recovery Token
+userSchema.methods.generatePasswordResetToken = function () {
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    this.passwordResetToken = crypto
+        .createHash("sha256")
+        .update(resetToken)
+        .digest("hex");
+
+    this.passwordResetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 mins
+
+    return resetToken;
 };
 
 const User = mongoose.model("User", userSchema);
