@@ -5,8 +5,6 @@ import cookieParser from "cookie-parser";
 import healthRouter from "./routes/healthCheck.route.js";
 import authRouter from "./routes/auth.route.js";
 import errorHandler from "./middlewares/errorHandler.middleware.js";
-import verifyMailRouter from "./routes/verifyMail.route.js";
-import resendMailRouter from "./routes/resendMail.route.js";
 
 const app = express();
 
