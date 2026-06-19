@@ -3,7 +3,6 @@ import ApiError from "../utils/ApiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import User from "../models/user.model.js";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary.js";
-import crypto from "crypto";
 
 const cookieOption = {
     httpOnly: true,
@@ -111,4 +110,28 @@ const logout = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, "User logged out!!", req.user));
 });
 
-export { signup, login, logout };
+const changePassword = asyncHandler(async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+        throw new ApiError(400, "All fields are required");
+    }
+
+    const user = await User.findById(req.user._id);
+
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+
+    if (!isPasswordCorrect) {
+        throw new ApiError(400, "Incorrect current password");
+    }
+
+    user.password = newPassword;
+
+    await user.save();
+
+    res.status(200).json(
+        new ApiResponse(200, null, "Password changed successfully")
+    );
+});
+
+export { signup, login, logout, changePassword };
