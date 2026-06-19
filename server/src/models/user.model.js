@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 const userSchema = new Schema(
     {
@@ -83,6 +84,17 @@ userSchema.methods.generateRefreshToken = async function () {
     return await jwt.sign({ _id: this._id }, process.env.REFRESH_TOKEN_SECRET, {
         expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
     });
+};
+
+// Generate Email Token
+userSchema.methods.generateEmailToken = function () {
+    const unHashedToken = crypto.randomBytes(32).toString("hex");
+    this.emailVerificationToken = crypto
+        .createHash("sha256")
+        .update(unHashedToken)
+        .digest("hex");
+    this.emailVerificationTokenExpiry = Date.now() + 1000 * 60 * 60;
+    return unHashedToken;
 };
 
 const User = mongoose.model("User", userSchema);
