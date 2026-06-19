@@ -37,9 +37,17 @@ const userSchema = new Schema(
             select: false,
         },
 
-        emailVerified: {
+        isEmailVerified: {
             type: Boolean,
             default: false,
+        },
+
+        emailVerificationToken: {
+            type: String,
+        },
+
+        emailVerificationTokenExpiry: {
+            type: Date,
         },
 
         lastLoginAt: {
