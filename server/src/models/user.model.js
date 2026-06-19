@@ -2,7 +2,6 @@ import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { type } from "os";
 
 const userSchema = new Schema(
     {
@@ -107,18 +106,18 @@ userSchema.methods.generateEmailToken = function () {
 };
 
 // Generate Password Recovery Token
-userSchema.methods.generatePasswordResetToken = function () {
-    const resetToken = crypto.randomBytes(32).toString("hex");
+// userSchema.methods.generatePasswordResetToken = function () {
+//     const resetToken = crypto.randomBytes(32).toString("hex");
 
-    this.passwordResetToken = crypto
-        .createHash("sha256")
-        .update(resetToken)
-        .digest("hex");
+//     this.passwordResetToken = crypto
+//         .createHash("sha256")
+//         .update(resetToken)
+//         .digest("hex");
 
-    this.passwordResetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 mins
+//     this.passwordResetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 mins
 
-    return resetToken;
-};
+//     return resetToken;
+// };
 
 const User = mongoose.model("User", userSchema);
 
