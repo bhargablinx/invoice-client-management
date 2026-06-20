@@ -8,7 +8,7 @@ import {
     verifyMail,
     resendMail,
     resetPassword,
-} from "../controllers/user.controller.js";
+} from "../controllers/auth.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
