@@ -95,6 +95,9 @@ const login = asyncHandler(async (req, res) => {
 
     const user = await User.findOne({ email: email.toLowerCase() });
 
+    if (user.isDeleted)
+        throw new ApiError(403, "This account has been deleted.");
+
     if (!user.isEmailVerified)
         throw new ApiError(403, "Please verify your email before logging in");
 
@@ -306,16 +309,20 @@ const refreshAccessToken = async (req, res) => {
         .json(new ApiResponse(201, "New Token Created!"));
 };
 
-const deleteUsr = async (req, res) => {
+const deleteUsr = asyncHandler(async (req, res) => {
     const user = req.user;
 
-    await User.findByIdAndDelete(user._id);
+    await User.findByIdAndUpdate(user._id, {
+        isDeleted: true,
+        deletedAt: new Date(),
+        refreshToken: null,
+    });
 
     res.status(200)
         .clearCookie("accessToken", cookieOption)
         .clearCookie("refreshToken", cookieOption)
-        .json(new ApiResponse(200, null, "User deleted and cookie cleared!!"));
-};
+        .json(new ApiResponse(200, null, "Account deleted successfully!"));
+});
 
 export {
     signup,
