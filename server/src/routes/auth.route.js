@@ -26,7 +26,7 @@ router.route("/reset-password/:token").post(resetPassword);
 router.route("/verify-email/:token").get(verifyMail);
 router.route("/resend-email").post(resendMail);
 router.route("/me").get(verifyJWT, getCurrentUser);
-router.route("/refresh-token").get(refreshAccessToken);
+router.route("/refresh-token").post(refreshAccessToken);
 router.route("/delete").delete(verifyJWT, deleteUsr);
 
 export default router;
