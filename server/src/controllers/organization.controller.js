@@ -60,7 +60,18 @@ const createOrganization = asyncHandler(async (req, res) => {
 });
 
 const getOrganization = asyncHandler(async (req, res) => {
-    res.status(200).json(new ApiResponse(200, null, "Server is running!!"));
+    const { organizationId } = req.params;
+
+    const organization = await Organization.findById(organizationId).populate(
+        "owner",
+        "name email avatar"
+    );
+
+    if (!organization) throw new ApiError(404, "Organization not found!");
+
+    res.status(200).json(
+        new ApiResponse(200, organization, "Organization fetched successfully!")
+    );
 });
 
 const updateOrganization = asyncHandler(async (req, res) => {
