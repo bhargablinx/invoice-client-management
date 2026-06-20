@@ -268,6 +268,16 @@ const verifyMail = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, user, "Email Verified!!"));
 });
 
+const getCurrentUser = asyncHandler(async (req, res) => {
+    const currentUser = await User.findById(req.user._id).select(
+        "-password -passwordRecoveryToken -passwordResetTokenExpiry -refreshToken -emailVerificationToken -emailVerificationTokenExpiry"
+    );
+
+    if (!currentUser) throw new ApiError(404, "User not found!");
+
+    res.status(200).json(new ApiResponse(200, currentUser));
+});
+
 export {
     signup,
     login,
@@ -277,4 +287,5 @@ export {
     resendMail,
     verifyMail,
     resetPassword,
+    getCurrentUser,
 };
