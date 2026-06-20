@@ -135,6 +135,52 @@ const changePassword = asyncHandler(async (req, res) => {
     );
 });
 
+const forgotPassword = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) throw new ApiError(400, "Email is empty!!");
+
+    const user = await User.findOne({ email });
+
+    if (!user) throw new ApiError(400, "User not found!!");
+
+    const resetToken = user.generatePasswordResetToken();
+    await user.save({ validateBeforeSave: false });
+
+    res.status(200).json(
+        new ApiResponse(200, resetToken, "Mail sent to your inbox!")
+    );
+});
+
+const resetPassword = asyncHandler(async (req, res) => {
+    const hashedToken = crypto
+        .createHash("sha256")
+        .update(req.params.token)
+        .digest("hex");
+
+    const user = await User.findOne({
+        passwordRecoveryToken: hashedToken,
+        passwordResetTokenExpiry: {
+            $gt: Date.now(),
+        },
+    });
+
+    if (!user) throw new ApiError(404, "Invalid or expired token");
+
+    const { newPassword } = req.body;
+    if (!newPassword || newPassword.length < 8)
+        throw new ApiError(400, "Password must be at least 8 characters");
+
+    user.password = newPassword;
+    user.passwordRecoveryToken = undefined;
+    user.passwordResetTokenExpiry = undefined;
+    await user.save();
+
+    res.status(200).json(
+        new ApiResponse(200, null, "Password changed successfully!!")
+    );
+});
+
 const resendMail = asyncHandler(async (req, res) => {
     const { email } = req.body;
 
@@ -181,4 +227,13 @@ const verifyMail = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, user, "Email Verified!!"));
 });
 
-export { signup, login, logout, changePassword, resendMail, verifyMail };
+export {
+    signup,
+    login,
+    logout,
+    changePassword,
+    forgotPassword,
+    resendMail,
+    verifyMail,
+    resetPassword,
+};
