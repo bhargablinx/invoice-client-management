@@ -306,6 +306,17 @@ const refreshAccessToken = async (req, res) => {
         .json(new ApiResponse(201, "New Token Created!"));
 };
 
+const deleteUsr = async (req, res) => {
+    const user = req.user;
+
+    await User.findByIdAndDelete(user._id);
+
+    res.status(200)
+        .clearCookie("accessToken", cookieOption)
+        .clearCookie("refreshToken", cookieOption)
+        .json(new ApiResponse(200, null, "User deleted and cookie cleared!!"));
+};
+
 export {
     signup,
     login,
@@ -317,4 +328,5 @@ export {
     resetPassword,
     getCurrentUser,
     refreshAccessToken,
+    deleteUsr,
 };
