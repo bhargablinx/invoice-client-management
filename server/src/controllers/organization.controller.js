@@ -5,6 +5,7 @@ import Organization from "../models/organization.model.js";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary.js";
 import { generateSlug } from "../utils/generateSlug.js";
 import mongoose from "mongoose";
+import Membership from "../models/membership.model.js";
 
 const createOrganization = asyncHandler(async (req, res) => {
     const { name, email, phone, website, address, taxId, currency, timezone } =
@@ -33,19 +34,50 @@ const createOrganization = asyncHandler(async (req, res) => {
         logo = cloudinaryResponse.url;
     }
 
-    const organization = await Organization.create({
-        name,
-        slug,
-        logo,
-        email,
-        phone,
-        website,
-        address,
-        taxId,
-        currency,
-        timezone,
-        owner: req.user._id,
-    });
+    const session = await mongoose.startSession();
+
+    let organization;
+
+    try {
+        session.startTransaction();
+
+        [organization] = await Organization.create(
+            [
+                {
+                    name,
+                    slug,
+                    logo,
+                    email,
+                    phone,
+                    website,
+                    address,
+                    taxId,
+                    currency,
+                    timezone,
+                    owner: req.user._id,
+                },
+            ],
+            { session }
+        );
+
+        await Membership.create(
+            [
+                {
+                    user: req.user._id,
+                    organization: organization._id,
+                    role: "owner",
+                },
+            ],
+            { session }
+        );
+
+        await session.commitTransaction();
+    } catch (error) {
+        await session.abortTransaction();
+        throw error;
+    } finally {
+        session.endSession();
+    }
 
     const createdOrganization = await Organization.findById(
         organization._id
