@@ -1,0 +1,18 @@
+import { Router } from "express";
+import {
+    createOrganization,
+    getOrganization,
+    updateOrganization,
+    deleteOrganization,
+} from "../controllers/organization.controller.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { upload } from "../middlewares/multer.middleware.js";
+
+const router = Router();
+
+router.route("/").post(upload.single("logo"), verifyJWT, createOrganization);
+router.route("/:organizationId").get(verifyJWT, getOrganization);
+router.route("/:organizationId").patch(verifyJWT, updateOrganization);
+router.route("/:organizationId").delete(verifyJWT, deleteOrganization);
+
+export default router;
