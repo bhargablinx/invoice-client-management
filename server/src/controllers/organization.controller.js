@@ -75,11 +75,66 @@ const getOrganization = asyncHandler(async (req, res) => {
 });
 
 const updateOrganization = asyncHandler(async (req, res) => {
-    res.status(200).json(new ApiResponse(200, null, "Server is running!!"));
+    const { organizationId } = req.params;
+
+    const organization = await Organization.findById(organizationId);
+
+    if (!organization) throw new ApiError(404, "Organization not found!");
+
+    if (organization.owner.toString() !== req.user._id.toString())
+        throw new ApiError(
+            403,
+            "You are not authorized to update this organization!"
+        );
+
+    const { name, email, phone, website, address, taxId, currency, timezone } =
+        req.body;
+
+    if (name) organization.name = name;
+    if (email !== undefined) organization.email = email;
+    if (phone !== undefined) organization.phone = phone;
+    if (website !== undefined) organization.website = website;
+    if (address !== undefined) organization.address = address;
+    if (taxId !== undefined) organization.taxId = taxId;
+    if (currency) organization.currency = currency;
+    if (timezone) organization.timezone = timezone;
+
+    if (req.file) {
+        const cloudinaryResponse = await uploadToCloudinary(req.file.path);
+
+        if (!cloudinaryResponse)
+            throw new ApiError(500, "Failed to upload company logo!");
+
+        organization.logo = cloudinaryResponse.url;
+    }
+
+    await organization.save();
+
+    res.status(200).json(
+        new ApiResponse(200, organization, "Organization updated successfully!")
+    );
 });
 
 const deleteOrganization = asyncHandler(async (req, res) => {
-    res.status(200).json(new ApiResponse(200, null, "Server is running!!"));
+    const { organizationId } = req.params;
+
+    const organization = await Organization.findById(organizationId);
+
+    if (!organization) throw new ApiError(404, "Organization not found!");
+
+    if (organization.owner.toString() !== req.user._id.toString())
+        throw new ApiError(
+            403,
+            "You are not authorized to delete this organization!"
+        );
+
+    organization.isActive = false;
+
+    await organization.save();
+
+    res.status(200).json(
+        new ApiResponse(200, null, "Organization deleted successfully!")
+    );
 });
 
 export {
