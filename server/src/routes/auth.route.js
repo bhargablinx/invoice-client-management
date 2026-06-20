@@ -9,6 +9,7 @@ import {
     resendMail,
     resetPassword,
     getCurrentUser,
+    refreshAccessToken,
 } from "../controllers/auth.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -24,5 +25,6 @@ router.route("/forgot-password/:token").post(resetPassword);
 router.route("/verify-email/:token").get(verifyMail);
 router.route("/resend-email").post(resendMail);
 router.route("/me").get(verifyJWT, getCurrentUser);
+router.route("/refresh-token").get(refreshAccessToken);
 
 export default router;

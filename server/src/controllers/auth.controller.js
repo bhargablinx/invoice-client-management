@@ -278,6 +278,34 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, currentUser));
 });
 
+const refreshAccessToken = async (req, res) => {
+    const clientRefreshToken =
+        req.cookies?.refreshToken || req.body?.refreshToken;
+
+    if (!clientRefreshToken) throw new ApiError(404, "Token not found");
+
+    const decodedToken = await jwt.verify(
+        clientRefreshToken,
+        process.env.REFRESH_TOKEN_SECRET
+    );
+
+    // search user in db by id
+    const user = await User.findById(decodedToken?._id);
+    if (!user) throw new ApiError(404, "User not found");
+
+    // verify both tokens
+    if (clientRefreshToken !== user.refreshToken)
+        throw new ApiError(403, "Invalid Token");
+
+    // if verified generate new token
+    const { accessToken, refreshToken } = await generateToken(user._id);
+
+    res.status(200)
+        .cookie("accessToken", accessToken, cookieOption)
+        .cookie("refreshToken", refreshToken, cookieOption)
+        .json(new ApiResponse(201, "New Token Created!"));
+};
+
 export {
     signup,
     login,
@@ -288,4 +316,5 @@ export {
     verifyMail,
     resetPassword,
     getCurrentUser,
+    refreshAccessToken,
 };
