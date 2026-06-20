@@ -4,6 +4,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import Organization from "../models/organization.model.js";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary.js";
 import { generateSlug } from "../utils/generateSlug.js";
+import mongoose from "mongoose";
 
 const createOrganization = asyncHandler(async (req, res) => {
     const { name, email, phone, website, address, taxId, currency, timezone } =
@@ -77,7 +78,9 @@ const getOrganization = asyncHandler(async (req, res) => {
 const updateOrganization = asyncHandler(async (req, res) => {
     const { organizationId } = req.params;
 
-    const organization = await Organization.findById(organizationId);
+    const organization = await Organization.findById(
+        new mongoose.Types.ObjectId(organizationId)
+    );
 
     if (!organization) throw new ApiError(404, "Organization not found!");
 
