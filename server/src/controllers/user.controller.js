@@ -4,6 +4,11 @@ import asyncHandler from "../utils/asyncHandler.js";
 import User from "../models/user.model.js";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary.js";
 import crypto from "crypto";
+import { sendMail } from "../utils/sendMail.js";
+import {
+    verifyEmailTemplate,
+    forgotPasswordTemplate,
+} from "../utils/emailTemplate.js";
 
 const cookieOption = {
     httpOnly: true,
@@ -60,10 +65,22 @@ const signup = asyncHandler(async (req, res) => {
     const verificationToken = user.generateEmailToken();
     await user.save({ validateBeforeSave: false });
 
-    res.status(200).json(
+    // Sending Mail
+    // const verificationUrl = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
+    // try {
+    //     await sendMail(
+    //         user.email,
+    //         "Verify Your Email",
+    //         verifyEmailTemplate(verificationUrl)
+    //     );
+    // } catch (error) {
+    //     throw new ApiError(500, "Verification email could not be sent");
+    // }
+
+    res.status(201).json(
         new ApiResponse(
-            200,
-            verificationToken,
+            201,
+            verificationToken, // just for testing (remove in production)
             "User registered successfully and verification url sent to your email!"
         )
     );
@@ -147,6 +164,18 @@ const forgotPassword = asyncHandler(async (req, res) => {
     const resetToken = user.generatePasswordResetToken();
     await user.save({ validateBeforeSave: false });
 
+    // Password Reset Mail
+    // const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    // try {
+    //     await sendMail(
+    //         user.email,
+    //         "Reset Your Password",
+    //         forgotPasswordTemplate(user.name, resetUrl)
+    //     );
+    // } catch (error) {
+    //     throw new ApiError(500, "Password reset email could not be sent");
+    // }
+
     res.status(200).json(
         new ApiResponse(200, resetToken, "Mail sent to your inbox!")
     );
@@ -190,6 +219,18 @@ const resendMail = asyncHandler(async (req, res) => {
 
     const newVerificationToken = user.generateEmailToken();
     await user.save({ validateBeforeSave: false });
+
+    // Re-Sending Mail
+    // const verificationUrl = `${process.env.CLIENT_URL}/verify-email/${newVerificationToken}`;
+    // try {
+    //     await sendMail(
+    //         user.email,
+    //         "Verify Your Email",
+    //         verifyEmailTemplate(verificationUrl)
+    //     );
+    // } catch (error) {
+    //     throw new ApiError(500, "Verification email could not be sent");
+    // }
 
     res.status(200).json(
         new ApiResponse(
