@@ -16,6 +16,15 @@ import {
     getInvitations,
     inviteUser,
 } from "../controllers/invitation.controller.js";
+import {
+    createClient,
+    deleteClient,
+    getClient,
+    getClientInvoices,
+    getClients,
+    getClientStats,
+    updateClient,
+} from "../controllers/client.controller.js";
 
 const router = Router();
 
@@ -59,5 +68,30 @@ router
 router
     .route("/:organizationId/invitations")
     .get(verifyJWT, authorizeRoles("owner", "admin"), getInvitations);
+
+// CLIENTS MANAGEMENT
+router
+    .route("/organizations/:organizationId/clients")
+    .post(verifyJWT, createClient);
+router
+    .route("/organizations/:organizationId/clients")
+    .get(verifyJWT, getClients);
+router
+    .route("/organizations/:organizationId/clients/:clientId")
+    .get(verifyJWT, getClient);
+router
+    .route("/organizations/:organizationId/clients/:clientId")
+    .patch(verifyJWT, updateClient);
+router
+    .route("/organizations/:organizationId/clients/:clientId")
+    .delete(verifyJWT, deleteClient);
+
+router
+    .route("/organizations/:organizationId/clients/:clientId/invoices")
+    .delete(verifyJWT, getClientInvoices);
+
+router
+    .route("/organizations/:organizationId/clients/:clientId/stats")
+    .delete(verifyJWT, getClientStats);
 
 export default router;
