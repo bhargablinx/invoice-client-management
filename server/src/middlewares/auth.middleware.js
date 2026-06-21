@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import "dotenv/config";
 import User from "../models/user.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
+import Membership from "../models/membership.model.js";
 
 const verifyJWT = asyncHandler(async (req, res, next) => {
     const token =
@@ -23,4 +24,33 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
     next();
 });
 
-export { verifyJWT };
+const authorizeRoles = (...allowedRoles) => {
+    return asyncHandler(async (req, res, next) => {
+        const { organizationId } = req.params;
+
+        const membership = await Membership.findOne({
+            user: req.user._id,
+            organization: organizationId,
+        });
+
+        if (!membership) {
+            throw new ApiError(
+                403,
+                "You are not a member of this organization"
+            );
+        }
+
+        if (!allowedRoles.includes(membership.role)) {
+            throw new ApiError(
+                403,
+                "You are not authorized to perform this action"
+            );
+        }
+
+        req.membership = membership;
+
+        next();
+    });
+};
+
+export { verifyJWT, authorizeRoles };
