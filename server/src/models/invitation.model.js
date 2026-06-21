@@ -34,6 +34,10 @@ const invitationSchema = new Schema({
         required: true,
     },
 
+    invitationToken: {
+        type: String,
+    },
+
     expiresAt: {
         type: Date,
         required: true,
