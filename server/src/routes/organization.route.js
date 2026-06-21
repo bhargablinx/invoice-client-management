@@ -5,7 +5,7 @@ import {
     updateOrganization,
     deleteOrganization,
 } from "../controllers/organization.controller.js";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { verifyJWT, authorizeRoles } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import {
     changeMemberRole,
