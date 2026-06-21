@@ -1,6 +1,12 @@
 import mongoose, { Schema } from "mongoose";
 
 const invitationSchema = new Schema({
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    },
+
     organization: {
         type: Schema.Types.ObjectId,
         ref: "Organization",
