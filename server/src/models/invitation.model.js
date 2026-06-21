@@ -61,7 +61,7 @@ invitationSchema.methods.generateToken = function () {
         .createHash("sha256")
         .update(unHashedToken)
         .digest("hex");
-    this.invitationToken = Date.now() + 1000 * 60 * 60 * 24; // 24 hrs
+    this.expiresAt = Date.now() + 1000 * 60 * 60 * 24; // 24 hrs
     return unHashedToken;
 };
 
