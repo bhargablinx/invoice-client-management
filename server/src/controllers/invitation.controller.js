@@ -150,4 +150,39 @@ const acceptInvitation = asyncHandler(async (req, res) => {
     );
 });
 
-export { inviteUser, acceptInvitation };
+const rejectInvitation = asyncHandler(async (req, res) => {
+    const { token } = req.params;
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    const invitation = await Invitation.findOne({
+        token: hashedToken,
+        expiresAt: {
+            $gt: Date.now(),
+        },
+        status: "pending",
+    });
+
+    if (!invitation) {
+        throw new ApiError(400, "Invalid or expired invitation");
+    }
+
+    // Ensure invitation belongs to logged-in user
+    if (!invitation.user.equals(req.user._id)) {
+        throw new ApiError(403, "This invitation is not for you");
+    }
+
+    invitation.status = "rejected";
+    invitation.token = undefined;
+    invitation.expiresAt = undefined;
+
+    await invitation.save({
+        validateBeforeSave: false,
+    });
+
+    res.status(200).json(
+        new ApiResponse(200, null, "Invitation rejected successfully")
+    );
+});
+
+export { inviteUser, acceptInvitation, rejectInvitation };
