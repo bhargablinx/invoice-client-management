@@ -70,28 +70,22 @@ router
     .get(verifyJWT, authorizeRoles("owner", "admin"), getInvitations);
 
 // CLIENTS MANAGEMENT
+router.route("/:organizationId/clients").post(verifyJWT, createClient);
+router.route("/:organizationId/clients").get(verifyJWT, getClients);
+router.route("/:organizationId/clients/:clientId").get(verifyJWT, getClient);
 router
-    .route("/organizations/:organizationId/clients")
-    .post(verifyJWT, createClient);
-router
-    .route("/organizations/:organizationId/clients")
-    .get(verifyJWT, getClients);
-router
-    .route("/organizations/:organizationId/clients/:clientId")
-    .get(verifyJWT, getClient);
-router
-    .route("/organizations/:organizationId/clients/:clientId")
+    .route("/:organizationId/clients/:clientId")
     .patch(verifyJWT, updateClient);
 router
-    .route("/organizations/:organizationId/clients/:clientId")
-    .delete(verifyJWT, deleteClient);
+    .route("/:organizationId/clients/:clientId")
+    .delete(verifyJWT, authorizeRoles("owner", "admin"), deleteClient);
 
 router
-    .route("/organizations/:organizationId/clients/:clientId/invoices")
+    .route("/:organizationId/clients/:clientId/invoices")
     .delete(verifyJWT, getClientInvoices);
 
 router
-    .route("/organizations/:organizationId/clients/:clientId/stats")
+    .route("/:organizationId/clients/:clientId/stats")
     .delete(verifyJWT, getClientStats);
 
 export default router;
