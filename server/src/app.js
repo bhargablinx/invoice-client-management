@@ -24,7 +24,6 @@ app.use("/api/v1/healthcheck", healthRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/organizations", organizationRouter);
 app.use("/api/v1/invitations", invitationRouter);
-app.use("/api/v1/clients", clientRouter);
 
 app.use(errorHandler);
 
