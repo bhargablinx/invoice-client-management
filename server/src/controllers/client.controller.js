@@ -58,7 +58,60 @@ const createClient = asyncHandler(async (req, res) => {
 });
 
 const getClients = asyncHandler(async (req, res) => {
-    res.status(200).json(new ApiResponse(200, null, "Server is running!!"));
+    const { organizationId } = req.params;
+
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(100, Number(req.query.limit) || 10);
+    const skip = (page - 1) * limit;
+
+    const search = req.query.search?.trim();
+
+    const membership = await Membership.findOne({
+        organization: organizationId,
+        user: req.user._id,
+    });
+
+    if (!membership) {
+        throw new ApiError(403, "You are not a member of this organization");
+    }
+
+    const filter = {
+        organization: new mongoose.Types.ObjectId(organizationId),
+    };
+
+    if (search) {
+        filter.$or = [
+            { name: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+            { companyName: { $regex: search, $options: "i" } },
+        ];
+    }
+
+    const [clients, totalClients] = await Promise.all([
+        Client.find(filter)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+
+        Client.countDocuments(filter),
+    ]);
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                clients,
+                pagination: {
+                    page,
+                    limit,
+                    totalClients,
+                    totalPages: Math.ceil(totalClients / limit),
+                },
+            },
+            "Clients fetched successfully"
+        )
+    );
 });
 
 const getClient = asyncHandler(async (req, res) => {
