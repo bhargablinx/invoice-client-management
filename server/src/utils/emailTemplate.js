@@ -66,3 +66,46 @@ export const forgotPasswordTemplate = (name, resetUrl) => {
     </div>
 `;
 };
+
+export const invitationTemplate = (organizationName, role, invitationUrl) => {
+    return ` <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;"> <h2>You're Invited!</h2>
+
+        <p>
+            You have been invited to join
+            <strong>${organizationName}</strong>.
+        </p>
+
+        <p>
+            Your assigned role will be:
+            <strong>${role}</strong>
+        </p>
+
+        <p>
+            Click the button below to accept the invitation:
+        </p>
+
+        <a
+            href="${invitationUrl}"
+            style="
+                display: inline-block;
+                padding: 12px 20px;
+                background-color: #2563eb;
+                color: white;
+                text-decoration: none;
+                border-radius: 6px;
+            "
+        >
+            Accept Invitation
+        </a>
+
+        <p style="margin-top: 20px;">
+            If you were not expecting this invitation,
+            you can safely ignore this email.
+        </p>
+
+        <p>
+            This invitation link will expire in 7 days.
+        </p>
+    </div>
+`;
+};
