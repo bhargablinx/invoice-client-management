@@ -32,7 +32,7 @@ router
     .route("/:organizationId/members/:userId")
     .delete(verifyJWT, removeMember);
 
-router.route("/:organizationId/invitation").post(verifyJWT, inviteUser);
-router.route("/:organizationId/invitation").get(verifyJWT, getInvitations);
+router.route("/:organizationId/invitations").post(verifyJWT, inviteUser);
+router.route("/:organizationId/invitations").get(verifyJWT, getInvitations);
 
 export default router;
