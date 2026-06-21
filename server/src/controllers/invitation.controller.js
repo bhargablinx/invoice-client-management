@@ -185,4 +185,23 @@ const rejectInvitation = asyncHandler(async (req, res) => {
     );
 });
 
-export { inviteUser, acceptInvitation, rejectInvitation };
+const getInvitations = asyncHandler(async (req, res) => {
+    const { organizationId } = req.params;
+    const { status = "pending" } = req.query;
+    const organization = await Organization.findById(organizationId);
+    if (!organization) {
+        throw new ApiError(404, "Organization not found");
+    }
+    const invitations = await Invitation.find({
+        organization: organizationId,
+        status,
+    })
+        .populate("user", "name email avatar")
+        .populate("invitedBy", "name email avatar")
+        .sort({ createdAt: -1 });
+    res.status(200).json(
+        new ApiResponse(200, invitations, "Invitations fetched successfully")
+    );
+});
+
+export { inviteUser, acceptInvitation, rejectInvitation, getInvitations };
