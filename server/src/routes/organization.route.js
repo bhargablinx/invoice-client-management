@@ -12,6 +12,7 @@ import {
     getMembers,
     removeMember,
 } from "../controllers/membership.controller.js";
+import { inviteUser } from "../controllers/invitation.controller.js";
 
 const router = Router();
 
@@ -27,5 +28,7 @@ router
 router
     .route("/:organizationId/members/:userId")
     .delete(verifyJWT, removeMember);
+
+router.route("/:organizationId/invitation").post(verifyJWT, inviteUser);
 
 export default router;
