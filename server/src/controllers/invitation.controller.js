@@ -6,6 +6,8 @@ import User from "../models/user.model.js";
 import { invitationTemplate } from "../utils/emailTemplate.js";
 import { sendMail } from "../utils/sendMail.js";
 import crypto from "crypto";
+import Organization from "../models/organization.model.js";
+import Membership from "../models/membership.model.js";
 
 const inviteUser = asyncHandler(async (req, res) => {
     const { organizationId } = req.params;
@@ -27,6 +29,7 @@ const inviteUser = asyncHandler(async (req, res) => {
     const userToInvite = await User.findOne({
         email: normalizedEmail,
     });
+
     if (!userToInvite) throw new ApiError(404, "User doesn't exists");
 
     if (userToInvite._id.equals(req.user._id))
@@ -58,6 +61,7 @@ const inviteUser = asyncHandler(async (req, res) => {
         user: userToInvite._id,
         organization: organizationId,
         role,
+        email,
         invitedBy: req.user._id,
     });
 
