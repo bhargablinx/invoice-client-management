@@ -5,6 +5,7 @@ import Invitation from "../models/invitation.model.js";
 import User from "../models/user.model.js";
 import { invitationTemplate } from "../utils/emailTemplate.js";
 import { sendMail } from "../utils/sendMail.js";
+import crypto from "crypto";
 
 const inviteUser = asyncHandler(async (req, res) => {
     const { organizationId } = req.params;
@@ -96,7 +97,57 @@ const inviteUser = asyncHandler(async (req, res) => {
 });
 
 const acceptInvitation = asyncHandler(async (req, res) => {
-    res.status(200).json(new ApiResponse(200, null, "Server is running!!"));
+    const { token } = req.params;
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    const invitation = await Invitation.findOne({
+        token: hashedToken,
+        expiresAt: {
+            $gt: Date.now(),
+        },
+        status: "pending",
+    });
+
+    if (!invitation) {
+        throw new ApiError(400, "Invalid or expired invitation");
+    }
+
+    // Ensure invitation belongs to logged-in user
+    if (!invitation.user.equals(req.user._id)) {
+        throw new ApiError(403, "This invitation is not for you");
+    }
+
+    // Prevent duplicate membership
+    const existingMembership = await Membership.findOne({
+        user: req.user._id,
+        organization: invitation.organization,
+    });
+
+    if (existingMembership) {
+        throw new ApiError(
+            400,
+            "You are already a member of this organization"
+        );
+    }
+
+    const membership = await Membership.create({
+        user: invitation.user,
+        organization: invitation.organization,
+        role: invitation.role,
+    });
+
+    invitation.status = "accepted";
+    invitation.token = undefined;
+    invitation.expiresAt = undefined;
+
+    await invitation.save({
+        validateBeforeSave: false,
+    });
+
+    res.status(200).json(
+        new ApiResponse(200, membership, "Invitation accepted successfully")
+    );
 });
 
 export { inviteUser, acceptInvitation };
