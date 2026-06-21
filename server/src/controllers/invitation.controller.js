@@ -106,7 +106,7 @@ const acceptInvitation = asyncHandler(async (req, res) => {
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
     const invitation = await Invitation.findOne({
-        token: hashedToken,
+        invitationToken: hashedToken,
         expiresAt: {
             $gt: Date.now(),
         },
