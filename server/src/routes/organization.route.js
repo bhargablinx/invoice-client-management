@@ -12,7 +12,10 @@ import {
     getMembers,
     removeMember,
 } from "../controllers/membership.controller.js";
-import { inviteUser } from "../controllers/invitation.controller.js";
+import {
+    getInvitations,
+    inviteUser,
+} from "../controllers/invitation.controller.js";
 
 const router = Router();
 
@@ -30,5 +33,6 @@ router
     .delete(verifyJWT, removeMember);
 
 router.route("/:organizationId/invitation").post(verifyJWT, inviteUser);
+router.route("/:organizationId/invitation").get(verifyJWT, getInvitations);
 
 export default router;
