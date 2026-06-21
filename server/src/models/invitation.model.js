@@ -40,7 +40,6 @@ const invitationSchema = new Schema({
 
     expiresAt: {
         type: Date,
-        required: true,
     },
 
     acceptedAt: {
@@ -48,6 +47,16 @@ const invitationSchema = new Schema({
         default: null,
     },
 });
+
+invitationSchema.methods.generateToken = function () {
+    const unHashedToken = crypto.randomBytes(32).toString("hex");
+    this.invitationToken = crypto
+        .createHash("sha256")
+        .update(unHashedToken)
+        .digest("hex");
+    this.invitationToken = Date.now() + 1000 * 60 * 60 * 24; // 24 hrs
+    return unHashedToken;
+};
 
 const Invitation = mongoose.model("Invitation", invitationSchema);
 
