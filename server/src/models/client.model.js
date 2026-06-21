@@ -54,6 +54,19 @@ const clientSchema = new Schema({
     },
 });
 
+clientSchema.index(
+    {
+        organization: 1,
+        email: 1,
+    },
+    {
+        unique: true,
+        partialFilterExpression: {
+            email: { $exists: true, $type: "string" },
+        },
+    }
+);
+
 const Client = mongoose.model("Client", clientSchema);
 
 export default Client;
