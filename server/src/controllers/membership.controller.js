@@ -70,7 +70,7 @@ const changeMemberRole = asyncHandler(async (req, res) => {
     );
 });
 
-const deleteMembership = asyncHandler(async (req, res) => {
+const removeMember = asyncHandler(async (req, res) => {
     const { organizationId, userId } = req.params;
 
     if (
