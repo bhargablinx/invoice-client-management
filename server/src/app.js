@@ -7,6 +7,7 @@ import authRouter from "./routes/auth.route.js";
 import errorHandler from "./middlewares/errorHandler.middleware.js";
 import organizationRouter from "./routes/organization.route.js";
 import invitationRouter from "./routes/invitation.route.js";
+import clientRouter from "./routes/client.route.js";
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use("/api/v1/healthcheck", healthRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/organizations", organizationRouter);
 app.use("/api/v1/invitations", invitationRouter);
+app.use("/api/v1/clients", clientRouter);
 
 app.use(errorHandler);
 
