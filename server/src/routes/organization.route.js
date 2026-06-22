@@ -42,6 +42,13 @@ import {
     updatePayment,
     deletePayment,
 } from "../controllers/payment.controller.js";
+import {
+    createService,
+    getServices,
+    getService,
+    updateService,
+    deleteService,
+} from "../controllers/serviceCatalog.controller.js";
 
 const router = Router();
 
@@ -162,5 +169,26 @@ router
 router
     .route("/:organizationId/invoices/:invoiceId/payments/:paymentId")
     .delete(verifyJWT, authorizeRoles("owner", "admin"), deletePayment);
+
+// SERVICE CATALOG MANAGEMENT
+router
+    .route("/:organizationId/services")
+    .post(verifyJWT, authorizeRoles("owner", "admin"), createService);
+
+router
+    .route("/:organizationId/services")
+    .get(verifyJWT, authorizeRoles("owner", "admin", "member"), getServices);
+
+router
+    .route("/:organizationId/services/:serviceId")
+    .get(verifyJWT, authorizeRoles("owner", "admin", "member"), getService);
+
+router
+    .route("/:organizationId/services/:serviceId")
+    .patch(verifyJWT, authorizeRoles("owner", "admin"), updateService);
+
+router
+    .route("/:organizationId/services/:serviceId")
+    .delete(verifyJWT, authorizeRoles("owner", "admin"), deleteService);
 
 export default router;
