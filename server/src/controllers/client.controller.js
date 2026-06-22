@@ -115,15 +115,90 @@ const getClients = asyncHandler(async (req, res) => {
 });
 
 const getClient = asyncHandler(async (req, res) => {
-    res.status(200).json(new ApiResponse(200, null, "Server is running!!"));
+    const { organizationId, clientId } = req.params;
+
+    const client = await Client.findOne({
+        _id: clientId,
+        organization: organizationId,
+    })
+        .populate("createdBy", "name email")
+        .lean();
+
+    if (!client) {
+        throw new ApiError(404, "Client not found");
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, client, "Client fetched successfully"));
 });
 
 const updateClient = asyncHandler(async (req, res) => {
-    res.status(200).json(new ApiResponse(200, null, "Server is running!!"));
+    const { organizationId, clientId } = req.params;
+
+    const { name, email, phone, companyName, address, taxId } = req.body;
+
+    if (name !== undefined && !name.trim()) {
+        throw new ApiError(400, "Client name cannot be empty");
+    }
+
+    const client = await Client.findOne({
+        _id: clientId,
+        organization: organizationId,
+        isActive: true,
+    });
+
+    if (!client) {
+        throw new ApiError(404, "Client not found");
+    }
+
+    // Check email uniqueness within organization
+    if (email && email !== client.email) {
+        const existingClient = await Client.findOne({
+            organization: organizationId,
+            email: email.toLowerCase(),
+            _id: { $ne: clientId },
+        });
+
+        if (existingClient) {
+            throw new ApiError(409, "A client with this email already exists");
+        }
+    }
+
+    if (name !== undefined) client.name = name.trim();
+    if (email !== undefined) client.email = email?.trim().toLowerCase();
+    if (phone !== undefined) client.phone = phone?.trim();
+    if (companyName !== undefined) client.companyName = companyName?.trim();
+    if (address !== undefined) client.address = address?.trim();
+    if (taxId !== undefined) client.taxId = taxId?.trim();
+
+    await client.save();
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, client, "Client updated successfully"));
 });
 
 const deleteClient = asyncHandler(async (req, res) => {
-    res.status(200).json(new ApiResponse(200, null, "Server is running!!"));
+    const { organizationId, clientId } = req.params;
+
+    const client = await Client.findOne({
+        _id: clientId,
+        organization: organizationId,
+        isActive: true,
+    });
+
+    if (!client) {
+        throw new ApiError(404, "Client not found");
+    }
+
+    client.isActive = false;
+
+    await client.save();
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, null, "Client deactivated successfully"));
 });
 
 const getClientInvoices = asyncHandler(async (req, res) => {
