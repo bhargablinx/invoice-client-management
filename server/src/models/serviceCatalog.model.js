@@ -51,6 +51,16 @@ const serviceCatalogSchema = new Schema({
     },
 });
 
+serviceCatalogSchema.index(
+    {
+        organization: 1,
+        name: 1,
+    },
+    {
+        unique: true,
+    }
+);
+
 const Servicecatalog = mongoose.model("Servicecatalog", serviceCatalogSchema);
 
 export default Servicecatalog;
