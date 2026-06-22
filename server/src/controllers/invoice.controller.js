@@ -4,6 +4,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import Client from "../models/client.model.js";
 import Invoice from "../models/invoice.model.js";
 import InvoiceItem from "../models/invoiceItem.model.js";
+import mongoose from "mongoose";
 
 const createInvoice = asyncHandler(async (req, res) => {
     const { organizationId } = req.params;
