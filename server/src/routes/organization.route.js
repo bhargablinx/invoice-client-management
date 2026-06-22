@@ -113,27 +113,15 @@ router
 
 router
     .route("/:organizationId/invoices/:invoiceId")
-    .patch(
-        verifyJWT,
-        authorizeRoles("owner", "admin", "member"),
-        updateInvoice
-    );
+    .patch(verifyJWT, authorizeRoles("owner", "admin"), updateInvoice);
 
 router
     .route("/:organizationId/invoices/:invoiceId")
-    .delete(
-        verifyJWT,
-        authorizeRoles("owner", "admin", "member"),
-        deleteInvoice
-    );
+    .delete(verifyJWT, authorizeRoles("owner", "admin"), deleteInvoice);
 
 router
     .route("/:organizationId/invoices/:invoiceId/status")
-    .patch(
-        verifyJWT,
-        authorizeRoles("owner", "admin", "member"),
-        updateInvoiceStatus
-    );
+    .patch(verifyJWT, authorizeRoles("owner", "admin"), updateInvoiceStatus);
 
 router
     .route("/:organizationId/invoices/:invoiceId/pdf")
@@ -145,6 +133,6 @@ router
 
 router
     .route("/:organizationId/invoices/:invoiceId/send")
-    .patch(verifyJWT, authorizeRoles("owner", "admin", "member"), sendInvoice);
+    .post(verifyJWT, authorizeRoles("owner", "admin", "member"), sendInvoice);
 
 export default router;
