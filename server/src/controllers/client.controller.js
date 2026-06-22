@@ -4,6 +4,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import Membership from "../models/membership.model.js";
 import Organization from "../models/organization.model.js";
 import Client from "../models/client.model.js";
+import mongoose from "mongoose";
 
 const createClient = asyncHandler(async (req, res) => {
     const { organizationId, name, email, phone, companyName, address, taxId } =
@@ -67,7 +68,7 @@ const getClients = asyncHandler(async (req, res) => {
     const search = req.query.search?.trim();
 
     const membership = await Membership.findOne({
-        organization: organizationId,
+        organization: new mongoose.Types.ObjectId(organizationId),
         user: req.user._id,
     });
 
