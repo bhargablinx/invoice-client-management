@@ -124,10 +124,6 @@ const createInvoice = asyncHandler(async (req, res) => {
 });
 
 const getInvoices = asyncHandler(async (req, res) => {
-    res.status(200).json(new ApiResponse(200, null, "Server is running!!"));
-});
-
-const getInvoices = asyncHandler(async (req, res) => {
     const { organizationId } = req.params;
 
     const page = Math.max(1, Number(req.query.page) || 1);
@@ -182,6 +178,39 @@ const getInvoices = asyncHandler(async (req, res) => {
                 },
             },
             "Invoices fetched successfully"
+        )
+    );
+});
+
+const getInvoice = asyncHandler(async (req, res) => {
+    const { organizationId, invoiceId } = req.params;
+
+    const invoice = await Invoice.findOne({
+        _id: invoiceId,
+        organization: organizationId,
+    })
+        .populate("client", "name email phone companyName address taxId")
+        .populate("createdBy", "name email")
+        .lean();
+
+    if (!invoice) {
+        throw new ApiError(404, "Invoice not found");
+    }
+
+    const items = await InvoiceItem.find({
+        invoice: invoiceId,
+    })
+        .select("-invoice -__v")
+        .lean();
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                invoice,
+                items,
+            },
+            "Invoice fetched successfully"
         )
     );
 });
@@ -405,6 +434,7 @@ const updateInvoiceStatus = asyncHandler(async (req, res) => {
         );
 });
 
+// TO BE IMPLEMENTED LATER
 const generateInvoicePdf = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, null, "Server is running!!"));
 });
