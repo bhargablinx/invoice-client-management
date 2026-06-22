@@ -127,8 +127,63 @@ const getInvoices = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, null, "Server is running!!"));
 });
 
-const getInvoice = asyncHandler(async (req, res) => {
-    res.status(200).json(new ApiResponse(200, null, "Server is running!!"));
+const getInvoices = asyncHandler(async (req, res) => {
+    const { organizationId } = req.params;
+
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.max(1, Number(req.query.limit) || 10);
+    const skip = (page - 1) * limit;
+
+    const { status, clientId, search } = req.query;
+
+    const filter = {
+        organization: organizationId,
+    };
+
+    if (status) {
+        filter.status = status;
+    }
+
+    if (clientId) {
+        filter.client = clientId;
+    }
+
+    if (search) {
+        filter.invoiceNumber = {
+            $regex: search,
+            $options: "i",
+        };
+    }
+
+    const [invoices, totalInvoices] = await Promise.all([
+        Invoice.find(filter)
+            .populate("client", "name companyName email")
+            .populate("createdBy", "name email")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+
+        Invoice.countDocuments(filter),
+    ]);
+
+    const totalPages = Math.ceil(totalInvoices / limit);
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                invoices,
+                pagination: {
+                    page,
+                    limit,
+                    totalInvoices,
+                    totalPages,
+                },
+            },
+            "Invoices fetched successfully"
+        )
+    );
 });
 
 const updateInvoice = asyncHandler(async (req, res) => {
