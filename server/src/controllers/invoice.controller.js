@@ -187,7 +187,136 @@ const getInvoices = asyncHandler(async (req, res) => {
 });
 
 const updateInvoice = asyncHandler(async (req, res) => {
-    res.status(200).json(new ApiResponse(200, null, "Server is running!!"));
+    const { organizationId, invoiceId } = req.params;
+
+    const { clientId, dueDate, currency, taxAmount, discountAmount, items } =
+        req.body;
+
+    const invoice = await Invoice.findOne({
+        _id: invoiceId,
+        organization: organizationId,
+    });
+
+    if (!invoice) {
+        throw new ApiError(404, "Invoice not found");
+    }
+
+    if (["paid", "cancelled"].includes(invoice.status)) {
+        throw new ApiError(400, `Cannot edit a ${invoice.status} invoice`);
+    }
+
+    if (clientId) {
+        const client = await Client.findOne({
+            _id: clientId,
+            organization: organizationId,
+            isActive: true,
+        });
+
+        if (!client) {
+            throw new ApiError(404, "Client not found");
+        }
+
+        invoice.client = clientId;
+    }
+
+    const session = await mongoose.startSession();
+
+    try {
+        session.startTransaction();
+
+        let subtotal = invoice.subtotal;
+        let totalAmount = invoice.totalAmount;
+        let balanceDue = invoice.balanceDue;
+
+        // Update invoice items if provided
+        if (items && Array.isArray(items)) {
+            if (items.length === 0) {
+                throw new ApiError(
+                    400,
+                    "Invoice must contain at least one item"
+                );
+            }
+
+            await InvoiceItem.deleteMany({ invoice: invoiceId }, { session });
+
+            let calculatedSubtotal = 0;
+
+            const invoiceItems = items.map((item) => {
+                const quantity = Number(item.quantity);
+                const unitPrice = Number(item.unitPrice);
+                const itemDiscount = Number(item.discountAmount || 0);
+
+                const lineTotal = quantity * unitPrice - itemDiscount;
+
+                calculatedSubtotal += lineTotal;
+
+                return {
+                    invoice: invoiceId,
+                    description: item.description,
+                    quantity,
+                    unitPrice,
+                    taxRate: item.taxRate || 0,
+                    discountAmount: itemDiscount,
+                    lineTotal,
+                };
+            });
+
+            await InvoiceItem.insertMany(invoiceItems, {
+                session,
+            });
+
+            subtotal = calculatedSubtotal;
+
+            totalAmount =
+                subtotal +
+                Number(taxAmount ?? invoice.taxAmount) -
+                Number(discountAmount ?? invoice.discountAmount);
+
+            balanceDue = totalAmount - invoice.amountPaid;
+        }
+
+        if (dueDate) {
+            invoice.dueDate = dueDate;
+        }
+
+        if (currency) {
+            invoice.currency = currency;
+        }
+
+        if (taxAmount !== undefined) {
+            invoice.taxAmount = taxAmount;
+        }
+
+        if (discountAmount !== undefined) {
+            invoice.discountAmount = discountAmount;
+        }
+
+        invoice.subtotal = subtotal;
+
+        invoice.totalAmount =
+            items !== undefined
+                ? totalAmount
+                : invoice.subtotal +
+                  (taxAmount ?? invoice.taxAmount) -
+                  (discountAmount ?? invoice.discountAmount);
+
+        invoice.balanceDue = invoice.totalAmount - invoice.amountPaid;
+
+        await invoice.save({ session });
+
+        await session.commitTransaction();
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(200, invoice, "Invoice updated successfully")
+            );
+    } catch (error) {
+        await session.abortTransaction();
+        throw error;
+    } finally {
+        session.endSession();
+    }
 });
 
 const deleteInvoice = asyncHandler(async (req, res) => {
