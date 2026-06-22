@@ -35,6 +35,13 @@ import {
     updateInvoice,
     updateInvoiceStatus,
 } from "../controllers/invoice.controller.js";
+import {
+    createPayment,
+    getPayments,
+    getPayment,
+    updatePayment,
+    deletePayment,
+} from "../controllers/payment.controller.js";
 
 const router = Router();
 
@@ -134,5 +141,26 @@ router
 router
     .route("/:organizationId/invoices/:invoiceId/send")
     .post(verifyJWT, authorizeRoles("owner", "admin", "member"), sendInvoice);
+
+// PAYMENT MANAGEMENT
+router
+    .route("/:organizationId/invoices/:invoiceId/payments")
+    .post(verifyJWT, authorizeRoles("owner", "admin"), createPayment);
+
+router
+    .route("/:organizationId/invoices/:invoiceId/payments")
+    .get(verifyJWT, authorizeRoles("owner", "admin", "member"), getPayments);
+
+router
+    .route("/:organizationId/invoices/:invoiceId/payments/:paymentId")
+    .get(verifyJWT, authorizeRoles("owner", "admin", "member"), getPayment);
+
+// router
+//     .route("/:organizationId/invoices/:invoiceId/payments/:paymentId")
+//     .patch(verifyJWT, authorizeRoles("owner", "admin"), updatePayment);
+
+router
+    .route("/:organizationId/invoices/:invoiceId/payments/:paymentId")
+    .delete(verifyJWT, authorizeRoles("owner", "admin"), deletePayment);
 
 export default router;
