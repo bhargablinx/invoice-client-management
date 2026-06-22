@@ -25,6 +25,16 @@ import {
     getClientStats,
     updateClient,
 } from "../controllers/client.controller.js";
+import {
+    createInvoice,
+    deleteInvoice,
+    generateInvoicePdf,
+    getInvoice,
+    getInvoices,
+    sendInvoice,
+    updateInvoice,
+    updateInvoiceStatus,
+} from "../controllers/invoice.controller.js";
 
 const router = Router();
 
@@ -87,5 +97,54 @@ router
 router
     .route("/:organizationId/clients/:clientId/stats")
     .delete(verifyJWT, getClientStats);
+
+// INVOICE MANAGEMENT
+router
+    .route("/:organizationId/invoices")
+    .post(verifyJWT, authorizeRoles("owner", "admin", "member"), createInvoice);
+
+router
+    .route("/:organizationId/invoices")
+    .get(verifyJWT, authorizeRoles("owner", "admin", "member"), getInvoices);
+
+router
+    .route("/:organizationId/invoices/:invoiceId")
+    .get(verifyJWT, authorizeRoles("owner", "admin", "member"), getInvoice);
+
+router
+    .route("/:organizationId/invoices/:invoiceId")
+    .patch(
+        verifyJWT,
+        authorizeRoles("owner", "admin", "member"),
+        updateInvoice
+    );
+
+router
+    .route("/:organizationId/invoices/:invoiceId")
+    .delete(
+        verifyJWT,
+        authorizeRoles("owner", "admin", "member"),
+        deleteInvoice
+    );
+
+router
+    .route("/:organizationId/invoices/:invoiceId/status")
+    .patch(
+        verifyJWT,
+        authorizeRoles("owner", "admin", "member"),
+        updateInvoiceStatus
+    );
+
+router
+    .route("/:organizationId/invoices/:invoiceId/pdf")
+    .get(
+        verifyJWT,
+        authorizeRoles("owner", "admin", "member"),
+        generateInvoicePdf
+    );
+
+router
+    .route("/:organizationId/invoices/:invoiceId/send")
+    .patch(verifyJWT, authorizeRoles("owner", "admin", "member"), sendInvoice);
 
 export default router;
