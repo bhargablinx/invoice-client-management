@@ -4,6 +4,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import Invoice from "../models/invoice.model.js";
 import Payment from "../models/payment.model.js";
 import mongoose from "mongoose";
+import recalculateInvoicePaymentStatus from "../utils/recalculatePayment.js";
 
 const createPayment = asyncHandler(async (req, res) => {
     const { organizationId, invoiceId } = req.params;
@@ -34,10 +35,6 @@ const createPayment = asyncHandler(async (req, res) => {
         );
     }
 
-    if (invoice.balanceDue <= 0) {
-        throw new ApiError(400, "Invoice has already been fully paid");
-    }
-
     if (amount > invoice.balanceDue) {
         throw new ApiError(
             400,
@@ -65,16 +62,10 @@ const createPayment = asyncHandler(async (req, res) => {
             { session }
         );
 
-        invoice.amountPaid += amount;
-        invoice.balanceDue -= amount;
-
-        if (invoice.balanceDue === 0) {
-            invoice.status = "paid";
-        } else {
-            invoice.status = "partially_paid";
-        }
-
-        await invoice.save({ session });
+        const updatedInvoice = await recalculateInvoicePaymentStatus(
+            invoiceId,
+            session
+        );
 
         await session.commitTransaction();
 
@@ -84,9 +75,10 @@ const createPayment = asyncHandler(async (req, res) => {
                 {
                     payment,
                     invoice: {
-                        amountPaid: invoice.amountPaid,
-                        balanceDue: invoice.balanceDue,
-                        status: invoice.status,
+                        _id: updatedInvoice._id,
+                        status: updatedInvoice.status,
+                        amountPaid: updatedInvoice.amountPaid,
+                        balanceDue: updatedInvoice.balanceDue,
                     },
                 },
                 "Payment recorded successfully"
@@ -140,7 +132,27 @@ const getPayments = asyncHandler(async (req, res) => {
 });
 
 const getPayment = asyncHandler(async (req, res) => {
-    res.status(200).json(new ApiResponse(200, null, "Server is running!!"));
+    const { organizationId, invoiceId, paymentId } = req.params;
+
+    const payment = await Payment.findOne({
+        _id: paymentId,
+        organization: organizationId,
+        invoice: invoiceId,
+    })
+        .populate("receivedBy", "name email")
+        .populate({
+            path: "invoice",
+            select: "invoiceNumber totalAmount amountPaid balanceDue status",
+        })
+        .lean();
+
+    if (!payment) {
+        throw new ApiError(404, "Payment not found");
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, payment, "Payment fetched successfully"));
 });
 
 const updatePayment = asyncHandler(async (req, res) => {
@@ -148,7 +160,57 @@ const updatePayment = asyncHandler(async (req, res) => {
 });
 
 const deletePayment = asyncHandler(async (req, res) => {
-    res.status(200).json(new ApiResponse(200, null, "Server is running!!"));
+    const { organizationId, invoiceId, paymentId } = req.params;
+
+    const session = await mongoose.startSession();
+
+    try {
+        session.startTransaction();
+
+        const payment = await Payment.findOne({
+            _id: paymentId,
+            organization: organizationId,
+            invoice: invoiceId,
+        }).session(session);
+
+        if (!payment) {
+            throw new ApiError(404, "Payment not found");
+        }
+
+        await Payment.deleteOne(
+            {
+                _id: paymentId,
+            },
+            { session }
+        );
+
+        const updatedInvoice = await recalculateInvoicePaymentStatus(
+            invoiceId,
+            session
+        );
+
+        await session.commitTransaction();
+
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                {
+                    invoice: {
+                        _id: updatedInvoice._id,
+                        status: updatedInvoice.status,
+                        amountPaid: updatedInvoice.amountPaid,
+                        balanceDue: updatedInvoice.balanceDue,
+                    },
+                },
+                "Payment deleted successfully"
+            )
+        );
+    } catch (error) {
+        await session.abortTransaction();
+        throw error;
+    } finally {
+        session.endSession();
+    }
 });
 
 export { createPayment, getPayments, getPayment, updatePayment, deletePayment };
