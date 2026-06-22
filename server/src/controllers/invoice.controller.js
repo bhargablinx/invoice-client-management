@@ -320,11 +320,89 @@ const updateInvoice = asyncHandler(async (req, res) => {
 });
 
 const deleteInvoice = asyncHandler(async (req, res) => {
-    res.status(200).json(new ApiResponse(200, null, "Server is running!!"));
+    const { organizationId, invoiceId } = req.params;
+
+    const invoice = await Invoice.findOne({
+        _id: invoiceId,
+        organization: organizationId,
+    });
+
+    if (!invoice) {
+        throw new ApiError(404, "Invoice not found");
+    }
+
+    if (invoice.status === "paid") {
+        throw new ApiError(400, "Paid invoices cannot be cancelled");
+    }
+
+    invoice.status = "cancelled";
+
+    await invoice.save();
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, null, "Invoice cancelled successfully"));
 });
 
 const updateInvoiceStatus = asyncHandler(async (req, res) => {
-    res.status(200).json(new ApiResponse(200, null, "Server is running!!"));
+    const { organizationId, invoiceId } = req.params;
+    const { status } = req.body;
+
+    const allowedStatuses = [
+        "draft",
+        "sent",
+        "viewed",
+        "partially_paid",
+        "paid",
+        "overdue",
+        "cancelled",
+    ];
+
+    if (!status) {
+        throw new ApiError(400, "Status is required");
+    }
+
+    if (!allowedStatuses.includes(status)) {
+        throw new ApiError(400, "Invalid invoice status");
+    }
+
+    const invoice = await Invoice.findOne({
+        _id: invoiceId,
+        organization: organizationId,
+    });
+
+    if (!invoice) {
+        throw new ApiError(404, "Invoice not found");
+    }
+
+    // Prevent modifications after cancellation
+    if (invoice.status === "cancelled") {
+        throw new ApiError(400, "Cancelled invoices cannot be updated");
+    }
+
+    // Prevent reverting paid invoices
+    if (invoice.status === "paid" && status !== "paid") {
+        throw new ApiError(
+            400,
+            "Paid invoices cannot be moved to another status"
+        );
+    }
+
+    invoice.status = status;
+
+    // Keep financial fields consistent
+    if (status === "paid") {
+        invoice.amountPaid = invoice.totalAmount;
+        invoice.balanceDue = 0;
+    }
+
+    await invoice.save();
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, invoice, "Invoice status updated successfully")
+        );
 });
 
 const generateInvoicePdf = asyncHandler(async (req, res) => {
