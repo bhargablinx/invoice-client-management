@@ -1,229 +1,768 @@
-For the v1 of your Invoice & Client Management Platform, I would separate controllers into **Organization Management** and **Organization Membership Management**.
+# Invoice & Client Management Platform
 
-### Organization Controllers
+## Overview
 
-#### 1. Create Organization
+A multi-tenant SaaS-style invoice and client management system where organizations can manage clients, services, invoices, memberships, and team collaboration.
 
-```js
-POST / organizations;
-```
+The platform supports:
 
-Creates a new organization and automatically makes the creator the owner.
-
----
-
-#### 2. Get Organization Details
-
-```js
-GET /organizations/:organizationId
-```
-
-Returns organization info such as:
-
-- Name
-- Logo
-- Description
-- Created date
-- Owner
-- Member count
+- User Authentication
+- Organization Management
+- Team Management
+- Client Management
+- Service Catalog
+- Invoice Management (planned)
+- Role-Based Access Control (RBAC)
+- Invitation System
 
 ---
 
-#### 3. Update Organization
+# Tech Stack
 
-```js
-PATCH /organizations/:organizationId
+## Backend
+
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+
+## Authentication
+
+- JWT Access Token
+- JWT Refresh Token
+- HTTP Only Cookies
+
+## File Storage
+
+- Cloudinary (Organization Logo Uploads)
+
+---
+
+# Authentication Module
+
+## Features Implemented
+
+### User Registration
+
+```http
+POST /api/v1/auth/signup
 ```
 
-Allows owner/admin to update:
+Features:
+
+- Create new account
+- Password hashing
+- Email verification token generation
+- Send verification email
+
+---
+
+### User Login
+
+```http
+POST /api/v1/auth/login
+```
+
+Features:
+
+- Email/password authentication
+- Access token generation
+- Refresh token generation
+- Store refresh token
+- Set secure cookies
+
+---
+
+### Logout
+
+```http
+POST /api/v1/auth/logout
+```
+
+Features:
+
+- Clear refresh token
+- Clear cookies
+
+---
+
+### Delete Account
+
+```http
+DELETE /api/v1/auth/delete
+```
+
+Features:
+
+- Soft delete account
+- Set:
+
+```js
+isDeleted: true;
+deletedAt: Date;
+```
+
+- Remove active session
+
+---
+
+### Email Verification
+
+```http
+GET /api/v1/auth/verify-email/:token
+```
+
+Features:
+
+- Verify user email
+- Activate account
+
+---
+
+### Resend Verification Email
+
+```http
+POST /api/v1/auth/resend-email
+```
+
+Features:
+
+- Generate new token
+- Send verification email
+
+---
+
+### Change Password
+
+```http
+POST /api/v1/auth/change-password
+```
+
+Features:
+
+- Validate current password
+- Update password securely
+
+---
+
+### Forgot Password
+
+```http
+POST /api/v1/auth/forgot-password
+```
+
+Features:
+
+- Generate reset token
+- Send reset email
+
+---
+
+### Reset Password
+
+```http
+POST /api/v1/auth/reset-password/:token
+```
+
+Features:
+
+- Verify reset token
+- Update password
+
+---
+
+# Authorization System
+
+## Roles
+
+```js
+owner;
+admin;
+member;
+```
+
+Implemented through Membership model.
+
+---
+
+## Role Permissions
+
+### Owner
+
+Can:
+
+- Manage organization
+- Manage members
+- Send invitations
+- Promote/Demote users
+- Delete organization
+- Manage services
+- Manage clients
+- Manage invoices
+
+---
+
+### Admin
+
+Can:
+
+- Manage clients
+- Manage services
+- Manage invoices
+- View organization members
+
+Cannot:
+
+- Delete organization
+- Change ownership
+
+---
+
+### Member
+
+Can:
+
+- View organization data
+- Create invoices (if permitted later)
+
+Cannot:
+
+- Manage members
+- Modify organization settings
+
+---
+
+# Organization Module
+
+Represents a company/business.
+
+---
+
+## Create Organization
+
+```http
+POST /api/v1/organizations
+```
+
+Features:
+
+- Create organization
+- Upload logo
+- Automatically create owner membership
+
+---
+
+## Get Organization
+
+```http
+GET /api/v1/organizations/:organizationId
+```
+
+Features:
+
+- Fetch organization details
+
+---
+
+## Update Organization
+
+```http
+PATCH /api/v1/organizations/:organizationId
+```
+
+Features:
+
+Update:
 
 - Name
-- Logo
+- Email
+- Phone
+- Website
 - Address
-- Tax information
-- Business details
+- Tax ID
+- Currency
+- Timezone
+- Logo
 
 ---
 
-#### 4. Delete Organization (Soft Delete)
+## Delete Organization
 
-```js
-DELETE /organizations/:organizationId
+```http
+DELETE /api/v1/organizations/:organizationId
 ```
 
-Instead of deleting:
+Features:
 
-```js
-isDeleted: true,
-deletedAt: Date
-```
-
-This prevents accidental data loss because invoices, payments, and clients belong to the organization.
+- Remove organization
+- Cleanup related data (planned)
 
 ---
 
-### Membership Controllers
-
-Since users can collaborate inside an organization:
-
-#### 5. Get Organization Members
+## Organization Fields
 
 ```js
-GET /organizations/:organizationId/members
-```
-
-Returns all members and their roles.
-
----
-
-#### 6. Change Member Role
-
-```js
-PATCH /organizations/:organizationId/members/:userId
-```
-
-Example:
-
-- Owner → Admin
-- Admin → Staff
-
----
-
-#### 7. Remove Member
-
-```js
-DELETE /organizations/:organizationId/members/:userId
-```
-
-Removes a member from the organization.
-
----
-
-### Invitation Controllers
-
-#### 8. Invite User
-
-```js
-POST /organizations/:organizationId/invitations
-```
-
-Sends invitation email.
-
----
-
-#### 9. Accept Invitation
-
-```js
-POST /invitations/:token/accept
-```
-
-Creates Membership document.
-
----
-
-#### 10. Reject Invitation
-
-```js
-POST /invitations/:token/reject
-```
-
----
-
-#### 11. List Pending Invitations
-
-```js
-GET /organizations/:organizationId/invitations
-```
-
-Useful for admins.
-
----
-
-### Suggested v1 Minimum
-
-If you're building incrementally, start with only:
-
-```txt
-Organization
-├── createOrganization
-├── getOrganization
-├── updateOrganization
-└── deleteOrganization (soft delete)
-
-Membership
-├── getMembers
-└── removeMember
-
-Invitation
-├── inviteUser
-└── acceptInvitation
-```
-
-These are enough to support:
-
-- Creating a company/workspace
-- Inviting team members
-- Managing roles
-- Collaborating on clients and invoices
-
-After this, move to **Client controllers**, then **Invoice controllers**, because those are the core business features of the SaaS.
-
-## INVOICE
-
-## Create Invoice
-
-Expected request structure:
-
-```json
 {
-    "clientId": "...",
-    "dueDate": "2026-07-15",
-    "currency": "INR",
-    "taxAmount": 100,
-    "discountAmount": 50,
-    "items": [
-        {
-            "description": "Website Development",
-            "quantity": 10,
-            "unitPrice": 500,
-            "taxRate": 18
-        }
-    ]
+    (name, email, phone, website, logo, address, taxId, currency, timezone);
 }
 ```
 
-## Getting all invoices
+---
 
-```
-GET /:organizationId/invoices
+# Membership Module
 
-?page=1
-&limit=10
-&status=paid
-&clientId=...
-&search=INV-0001
-```
+Connects users with organizations.
 
-## PAYMENT
+---
 
-- Payments are usually a child resource of invoices, so I'd nest the routes under invoices.
+## Membership Schema
 
-```
-POST   /organizations/:organizationId/invoices/:invoiceId/payments
-GET    /organizations/:organizationId/invoices/:invoiceId/payments
-
-GET    /organizations/:organizationId/invoices/:invoiceId/payments/:paymentId
-PATCH  /organizations/:organizationId/invoices/:invoiceId/payments/:paymentId
-DELETE /organizations/:organizationId/invoices/:invoiceId/payments/:paymentId
+```js
+{
+    (user, organization, role);
+}
 ```
 
-## Service Catalog
+Role:
 
-## Getting service:
+```js
+owner;
+admin;
+member;
+```
 
+---
+
+## Features
+
+### Get Members
+
+```http
+GET /api/v1/memberships
 ```
-?page=1
-&limit=10
-&search=website
-&active=true
+
+Returns:
+
+- Member details
+- Role
+- Join information
+
+---
+
+### Update Member Role
+
+```http
+PATCH /api/v1/memberships/:membershipId
 ```
+
+Features:
+
+- Promote member
+- Demote member
+
+---
+
+### Remove Member
+
+```http
+DELETE /api/v1/memberships/:membershipId
+```
+
+Features:
+
+- Remove user from organization
+
+Restrictions:
+
+- Cannot remove organization owner
+
+---
+
+# Invitation Module
+
+Used to onboard organization members.
+
+---
+
+## Send Invitation
+
+```http
+POST /api/v1/invitations
+```
+
+Features:
+
+- Invite via email
+- Select role
+- Generate invitation token
+
+---
+
+## Accept Invitation
+
+```http
+POST /api/v1/invitation/:token/accept
+```
+
+Features:
+
+- Create membership
+- Join organization
+
+---
+
+## Reject Invitation
+
+```http
+POST /api/v1/invitation/:token/reject
+```
+
+Features:
+
+- Mark invitation as rejected
+
+---
+
+## Get Invitations
+
+```http
+GET /api/v1/invitations
+```
+
+Features:
+
+- List pending invitations
+
+---
+
+## Cancel Invitation
+
+```http
+DELETE /api/v1/invitations/:invitationId
+```
+
+Features:
+
+- Revoke invitation
+
+---
+
+# Client Module
+
+Stores customer information.
+
+---
+
+## Client Fields
+
+```js
+{
+    (organization, name, email, phone, company, address, notes);
+}
+```
+
+---
+
+## Features
+
+### Create Client
+
+```http
+POST /api/v1/clients
+```
+
+---
+
+### Get Clients
+
+```http
+GET /api/v1/clients
+```
+
+Features:
+
+- Pagination
+- Search
+- Filtering
+
+---
+
+### Get Client
+
+```http
+GET /api/v1/clients/:clientId
+```
+
+---
+
+### Update Client
+
+```http
+PATCH /api/v1/clients/:clientId
+```
+
+---
+
+### Delete Client
+
+```http
+DELETE /api/v1/clients/:clientId
+```
+
+---
+
+# Service Catalog Module
+
+Stores reusable services offered by an organization.
+
+---
+
+## Service Fields
+
+```js
+{
+    (organization, name, description, unit, unitPrice, taxRate, isActive);
+}
+```
+
+---
+
+## Features
+
+### Create Service
+
+```http
+POST /api/v1/services
+```
+
+Create reusable service.
+
+Examples:
+
+- Website Development
+- SEO Audit
+- UI Design
+- Maintenance
+
+---
+
+### Get Services
+
+```http
+GET /api/v1/services
+```
+
+Features:
+
+- Pagination
+- Search
+- Filtering
+
+---
+
+### Get Service
+
+```http
+GET /api/v1/services/:serviceId
+```
+
+---
+
+### Update Service
+
+```http
+PATCH /api/v1/services/:serviceId
+```
+
+---
+
+### Delete Service
+
+```http
+DELETE /api/v1/services/:serviceId
+```
+
+---
+
+# Middleware Implemented
+
+## verifyJWT
+
+Responsibilities:
+
+- Read access token
+- Verify JWT
+- Load authenticated user
+- Attach:
+
+```js
+req.user;
+```
+
+---
+
+## authorizeRoles
+
+Responsibilities:
+
+```js
+authorizeRoles("owner");
+authorizeRoles("owner", "admin");
+```
+
+Checks:
+
+- Membership role
+- Organization access
+
+---
+
+## upload
+
+Multer middleware.
+
+Used for:
+
+- Organization logo upload
+
+---
+
+## asyncHandler
+
+Responsibilities:
+
+- Catch async errors
+- Forward to error handler
+
+---
+
+# Utility Classes
+
+## ApiResponse
+
+Standardized success response.
+
+Example:
+
+```json
+{
+    "statusCode": 200,
+    "data": {},
+    "message": "Success"
+}
+```
+
+---
+
+## ApiError
+
+Standardized error handling.
+
+Example:
+
+```json
+{
+    "statusCode": 400,
+    "message": "Invalid request"
+}
+```
+
+---
+
+# Current Database Models
+
+Implemented:
+
+```txt
+User
+Organization
+Membership
+Invitation
+Client
+ServiceCatalog
+```
+
+---
+
+# Planned Modules (Not Yet Implemented)
+
+## Invoice Module
+
+Core billing system.
+
+Planned Features:
+
+- Create invoice
+- Draft invoices
+- Send invoice
+- Invoice status tracking
+- Tax calculation
+- Discounts
+- Due dates
+
+Status:
+
+🚧 Not Implemented
+
+---
+
+## Invoice Items
+
+Planned Features:
+
+- Multiple line items
+- Service references
+- Quantity
+- Unit price
+- Tax
+
+Status:
+
+🚧 Not Implemented
+
+---
+
+## Payments
+
+Planned Features:
+
+- Record payments
+- Partial payments
+- Outstanding balance tracking
+
+Status:
+
+🚧 Not Implemented
+
+---
+
+## Dashboard Analytics
+
+Planned Features:
+
+- Revenue overview
+- Invoice statistics
+- Client statistics
+
+Status:
+
+🚧 Not Implemented
+
+---
+
+# Current Development Progress
+
+| Module                  | Status      |
+| ----------------------- | ----------- |
+| Authentication          | ✅ Complete |
+| Email Verification      | ✅ Complete |
+| Password Reset          | ✅ Complete |
+| Organization Management | ✅ Complete |
+| Membership Management   | ✅ Complete |
+| Invitation System       | ✅ Complete |
+| Client Management       | ✅ Complete |
+| Service Catalog         | ✅ Complete |
+| RBAC                    | ✅ Complete |
+| Invoice Management      | 🚧 Pending  |
+| Payments                | 🚧 Pending  |
+| Dashboard Analytics     | 🚧 Pending  |
