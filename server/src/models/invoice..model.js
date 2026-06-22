@@ -92,6 +92,16 @@ const invoiceSchema = new Schema({
     },
 });
 
+invoiceSchema.index(
+    {
+        organization: 1,
+        invoiceNumber: 1,
+    },
+    {
+        unique: true,
+    }
+);
+
 const Invoice = mongoose.model("Invoice", invoiceSchema);
 
 export default Invoice;
