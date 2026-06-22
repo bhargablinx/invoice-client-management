@@ -20,12 +20,19 @@ const recalculateInvoicePaymentStatus = async (invoiceId, session = null) => {
     invoice.amountPaid = amountPaid;
     invoice.balanceDue = Math.max(0, invoice.totalAmount - amountPaid);
 
-    if (invoice.balanceDue <= 0) {
-        invoice.status = "paid";
-    } else if (invoice.amountPaid > 0) {
-        invoice.status = "partially_paid";
-    } else {
-        invoice.status = "sent";
+    // Never modify cancelled invoices
+    if (invoice.status !== "cancelled") {
+        if (invoice.balanceDue <= 0) {
+            invoice.status = "paid";
+        } else if (invoice.amountPaid > 0) {
+            invoice.status = "partially_paid";
+        } else if (
+            invoice.status === "paid" ||
+            invoice.status === "partially_paid"
+        ) {
+            // revert only payment-derived statuses
+            invoice.status = "sent";
+        }
     }
 
     await invoice.save({ session });
