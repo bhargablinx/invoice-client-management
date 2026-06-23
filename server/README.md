@@ -1,6 +1,6 @@
 # Invoice & Client Management Platform (Backend)
 
-A RESTful backend API for managing organizations, clients, services, invoices, and team collaboration. Designed as a multi-tenant SaaS platform for freelancers, agencies, and small businesses.
+A RESTful backend API for managing organizations, clients, services, invoices, payments, and team collaboration. Built as a multi-tenant SaaS platform for freelancers, agencies, and small businesses.
 
 ## Features
 
@@ -8,32 +8,33 @@ A RESTful backend API for managing organizations, clients, services, invoices, a
 
 - JWT Authentication (Access & Refresh Tokens)
 - Email Verification
-- Password Reset & Change Password
-- Secure HTTP-only Cookies
-- Soft User Deletion
+- Password Reset
+- Role-Based Access Control (RBAC)
 
 ### Organization Management
 
 - Create and manage organizations
-- Organization logo uploads
-- Organization settings management
+- Organization logo upload
+- Member and role management
 
-### Team Collaboration
+### Client & Service Management
 
-- Role based access control (Owner, Admin, Member)
-- Membership management
-- Invitation system for team onboarding
+- Client CRUD operations
+- Service Catalog CRUD operations
 
-### Client Management
+### Invoice & Payment Management
 
-- Create, update, view, and delete clients
-- Search and pagination support
+- Invoice creation and tracking
+- Payment recording
+- Invoice status management
+- Revenue and outstanding balance tracking
 
-### Service Catalog
+### Dashboard Analytics
 
-- Manage reusable services
-- Pricing and tax configuration
-- Service activation/deactivation
+- Business overview statistics
+- Monthly revenue analytics
+- Top clients insights
+- Recent invoice activity
 
 ## Tech Stack
 
@@ -41,28 +42,18 @@ A RESTful backend API for managing organizations, clients, services, invoices, a
 - Express.js
 - MongoDB
 - Mongoose
-- JWT Authentication
+- JWT
 - Cloudinary
 - Multer
 
-## Current Status
+## API Modules
 
-### Completed
-
-- Authentication System
-- Organization Management
-- Membership Management
-- Invitation System
-- Client Management
+- Authentication
+- Organizations
+- Memberships
+- Invitations
+- Clients
 - Service Catalog
-- Role Based Authorization
-
-### In Progress
-
-- Invoice Management
-- Payment Tracking
+- Invoices
+- Payments
 - Dashboard Analytics
-
-## Objective
-
-To provide a complete backend foundation for an invoice and client management platform that enables businesses to manage clients, services, invoices, payments, and team members from a single system.
