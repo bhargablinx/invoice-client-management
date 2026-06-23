@@ -166,4 +166,153 @@ const getOverview = asyncHandler(async (req, res) => {
         );
 });
 
-export { getOverview };
+const getMonthlyRevenue = asyncHandler(async (req, res) => {
+    const { organizationId } = req.params;
+
+    const revenue = await Invoice.aggregate([
+        {
+            $match: {
+                organization: new mongoose.Types.ObjectId(organizationId),
+                status: {
+                    $nin: ["draft", "cancelled"],
+                },
+            },
+        },
+        {
+            $group: {
+                _id: {
+                    year: { $year: "$issueDate" },
+                    month: { $month: "$issueDate" },
+                },
+                revenue: {
+                    $sum: "$totalAmount",
+                },
+            },
+        },
+        {
+            $sort: {
+                "_id.year": 1,
+                "_id.month": 1,
+            },
+        },
+        {
+            $project: {
+                _id: 0,
+                year: "$_id.year",
+                month: "$_id.month",
+                revenue: 1,
+            },
+        },
+    ]);
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                revenue,
+                "Monthly revenue fetched successfully"
+            )
+        );
+});
+
+const getRecentInvoices = asyncHandler(async (req, res) => {
+    const { organizationId } = req.params;
+
+    const invoices = await Invoice.find({
+        organization: organizationId,
+    })
+        .populate("client", "name company")
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .select(
+            "invoiceNumber totalAmount amountPaid balanceDue status dueDate createdAt"
+        )
+        .lean();
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                invoices,
+                "Recent invoices fetched successfully"
+            )
+        );
+});
+
+const getTopClients = asyncHandler(async (req, res) => {
+    const { organizationId } = req.params;
+
+    const clients = await Invoice.aggregate([
+        {
+            $match: {
+                organization: new mongoose.Types.ObjectId(organizationId),
+                status: {
+                    $ne: "cancelled",
+                },
+            },
+        },
+        {
+            $group: {
+                _id: "$client",
+
+                totalRevenue: {
+                    $sum: "$totalAmount",
+                },
+
+                totalInvoices: {
+                    $sum: 1,
+                },
+
+                amountPaid: {
+                    $sum: "$amountPaid",
+                },
+            },
+        },
+        {
+            $sort: {
+                totalRevenue: -1,
+            },
+        },
+        {
+            $limit: 5,
+        },
+        {
+            $lookup: {
+                from: "clients",
+                localField: "_id",
+                foreignField: "_id",
+                as: "client",
+            },
+        },
+        {
+            $unwind: "$client",
+        },
+        {
+            $project: {
+                _id: 0,
+
+                clientId: "$client._id",
+
+                name: "$client.name",
+
+                company: "$client.company",
+
+                totalRevenue: 1,
+
+                totalInvoices: 1,
+
+                amountPaid: 1,
+            },
+        },
+    ]);
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, clients, "Top clients fetched successfully")
+        );
+});
+
+export { getOverview, getMonthlyRevenue, getRecentInvoices, getTopClients };
