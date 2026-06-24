@@ -1,70 +1,82 @@
 import axios from "axios";
 
-const BASE =
+const BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
 
 const api = axios.create({
-    baseURL: BASE,
-    headers: { "Content-Type": "application/json" },
+    baseURL: BASE_URL,
+    withCredentials: true,
+    headers: {
+        "Content-Type": "application/json",
+    },
 });
 
-// Inject token
-api.interceptors.request.use((config) => {
-    const token = localStorage.getItem("accessToken");
-    if (token) config.headers.Authorization = `Bearer ${token}`;
-    return config;
-});
+let isRefreshing = false;
+let failedQueue = [];
 
-// Auto-refresh on 401
-let refreshing = false;
-let queue = [];
+const processQueue = (error) => {
+    failedQueue.forEach((promise) => {
+        if (error) {
+            promise.reject(error);
+        } else {
+            promise.resolve();
+        }
+    });
 
-const flush = (err, token) => {
-    queue.forEach((p) => (err ? p.reject(err) : p.resolve(token)));
-    queue = [];
+    failedQueue = [];
 };
 
 api.interceptors.response.use(
-    (res) => res,
-    async (err) => {
-        const orig = err.config;
-        if (err.response?.status === 401 && !orig._retry) {
-            const refresh = localStorage.getItem("refreshToken");
-            if (!refresh) {
-                window.location.href = "/login";
-                return Promise.reject(err);
+    (response) => response,
+
+    async (error) => {
+        const originalRequest = error.config;
+
+        // Network Error
+        if (!error.response) {
+            console.error("Network error or server unavailable");
+            return Promise.reject(error);
+        }
+
+        // Prevent infinite refresh loop
+        if (originalRequest?.url?.includes("/auth/refresh")) {
+            return Promise.reject(error);
+        }
+
+        if (error.response.status === 401 && !originalRequest._retry) {
+            if (isRefreshing) {
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                }).then(() => api(originalRequest));
             }
 
-            if (refreshing) {
-                return new Promise((resolve, reject) =>
-                    queue.push({ resolve, reject }),
-                ).then((token) => {
-                    orig.headers.Authorization = `Bearer ${token}`;
-                    return api(orig);
-                });
-            }
+            originalRequest._retry = true;
+            isRefreshing = true;
 
-            orig._retry = true;
-            refreshing = true;
             try {
-                const { data } = await axios.post(`${BASE}/auth/refresh`, {
-                    refresh_token: refresh,
-                });
-                localStorage.setItem("accessToken", data.access_token);
-                localStorage.setItem("refreshToken", data.refresh_token);
-                flush(null, data.access_token);
-                orig.headers.Authorization = `Bearer ${data.access_token}`;
-                return api(orig);
-            } catch (e) {
-                flush(e, null);
-                localStorage.clear();
+                await axios.post(
+                    `${BASE_URL}/auth/refresh`,
+                    {},
+                    {
+                        withCredentials: true,
+                    },
+                );
+
+                processQueue(null);
+
+                return api(originalRequest);
+            } catch (refreshError) {
+                processQueue(refreshError);
+
                 window.location.href = "/login";
-                return Promise.reject(e);
+
+                return Promise.reject(refreshError);
             } finally {
-                refreshing = false;
+                isRefreshing = false;
             }
         }
-        return Promise.reject(err);
+
+        return Promise.reject(error);
     },
 );
 
