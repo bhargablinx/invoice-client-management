@@ -1,8 +1,43 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { login } from "@/services/auth";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading, setUser } from "@/features/authSlice";
+import Loading from "@/components/layout/Loading";
 
 export default function Login() {
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm();
+    const [error, setError] = useState();
+    const dispatch = useDispatch();
+    const { isLoading } = useSelector((state) => state.auth);
+
+    const onSubmit = async (data) => {
+        dispatch(setLoading(true));
+        try {
+            const response = await login(data);
+            console.log(response);
+
+            if (response) {
+                dispatch(setUser(response.data));
+            }
+        } catch (error) {
+            console.log(error);
+
+            setError(error.message);
+        } finally {
+            dispatch(setLoading(false));
+        }
+    };
+
+    if (isLoading) return <Loading />;
+
     return (
         <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-6">
             {/* Background */}
@@ -44,11 +79,15 @@ export default function Login() {
                     </p>
                 </div>
 
-                <form className="mt-8 space-y-5">
+                <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    className="mt-8 space-y-5"
+                >
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Email</label>
 
                         <Input
+                            {...register("email", { required: true })}
                             type="email"
                             placeholder="you@example.com"
                             className="h-11 transition-all duration-200 focus-visible:ring-2"
@@ -59,6 +98,7 @@ export default function Login() {
                         <label className="text-sm font-medium">Password</label>
 
                         <Input
+                            {...register("password", { required: true })}
                             type="password"
                             placeholder="••••••••"
                             className="h-11 transition-all duration-200 focus-visible:ring-2"
@@ -73,6 +113,13 @@ export default function Login() {
                             Forgot Password?
                         </Link>
                     </div>
+
+                    {error && (
+                        <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
+                            {" "}
+                            {error}
+                        </div>
+                    )}
 
                     <Button
                         size="lg"
