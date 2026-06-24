@@ -4,18 +4,21 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import Loading from "@/components/Loading";
+import { useDispatch } from "react-redux";
+import { login } from "@/features/authSlice";
 
 export default function Login() {
     const [authError, setAuthError] = useState();
     const { register, handleSubmit } = useForm();
-
     const [isLoading, setIsLoading] = useState(false); // fake
+    const dispatch = useDispatch();
 
     const onSubmit = (formData) => {
         // Fake
         setIsLoading(true);
         setTimeout(() => {
             console.log(formData);
+            dispatch(login());
             setIsLoading(false);
         }, [800]);
     };
