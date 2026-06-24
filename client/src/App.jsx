@@ -3,6 +3,8 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import AuthLayout from "./layouts/AuthLayout";
+import ProtectedLayout from "./layouts/ProtectedLayout";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
     const router = createBrowserRouter([
@@ -22,6 +24,17 @@ function App() {
                 {
                     path: "/signup",
                     element: <Signup />,
+                },
+            ],
+        },
+        // Protected Routes
+        {
+            path: "/dashboard",
+            element: <ProtectedLayout />,
+            children: [
+                {
+                    path: "/dashboard",
+                    element: <Dashboard />,
                 },
             ],
         },
