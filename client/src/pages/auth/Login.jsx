@@ -1,9 +1,9 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import { login } from "@/services/auth";
+import { getCurrentUser, login } from "@/services/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading, setUser } from "@/features/authSlice";
 import Loading from "@/components/layout/Loading";
@@ -14,23 +14,22 @@ export default function Login() {
         handleSubmit,
         formState: { errors },
     } = useForm();
-    const [error, setError] = useState();
+    const [authError, setAuthError] = useState("");
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { isLoading } = useSelector((state) => state.auth);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (formData) => {
         dispatch(setLoading(true));
+
         try {
-            const response = await login(data);
-            console.log(response);
-
-            if (response) {
-                dispatch(setUser(response.data));
-            }
-        } catch (error) {
-            console.log(error);
-
-            setError(error.message);
+            const response = await login(formData);
+            dispatch(setUser(response.data));
+            navigate("/dashboard");
+        } catch (err) {
+            setAuthError(
+                err.response?.data?.message || err.message || "Login failed",
+            );
         } finally {
             dispatch(setLoading(false));
         }
@@ -114,11 +113,8 @@ export default function Login() {
                         </Link>
                     </div>
 
-                    {error && (
-                        <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
-                            {" "}
-                            {error}
-                        </div>
+                    {authError && (
+                        <p className="text-sm text-red-500">{authError}</p>
                     )}
 
                     <Button
