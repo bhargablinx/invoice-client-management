@@ -9,8 +9,9 @@ const ProtectedLayout = () => {
 
     return (
         <>
-            <Sidebar />
-            <Outlet />
+            <Sidebar>
+                <Outlet />
+            </Sidebar>
         </>
     );
 };
