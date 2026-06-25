@@ -3,7 +3,6 @@
 import * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
-import { NavProjects } from "@/components/nav-projects";
 import { NavUser } from "@/components/nav-user";
 import { TeamSwitcher } from "@/components/team-switcher";
 import {
@@ -24,7 +23,6 @@ import {
     BarChart3,
     Settings,
     Receipt,
-    Newspaper,
 } from "lucide-react";
 
 // This is sample data.
@@ -225,52 +223,52 @@ const data = {
             icon: <Settings />,
         },
     ],
-    projects: [
-        {
-            name: "Dashboard",
-            url: "#",
-            icon: <LayoutDashboard />,
-            items: [
-                {
-                    title: "History",
-                    url: "#",
-                },
-                {
-                    title: "Starred",
-                    url: "#",
-                },
-                {
-                    title: "Settings",
-                    url: "#",
-                },
-            ],
-        },
-        {
-            name: "Members",
-            url: "#",
-            icon: <Users />,
-        },
-        {
-            name: "Clients",
-            url: "#",
-            icon: <UsersRound />,
-        },
-        {
-            name: "Invoices",
-            url: "#",
-            icon: <Newspaper />,
-        },
-        {
-            name: "Payments",
-            url: "#",
-            icon: <CircleDollarSign />,
-        },
-        {
-            name: "Services",
-            url: "#",
-            icon: <HandPlatter />,
-        },
-    ],
+    // projects: [
+    //     {
+    //         name: "Dashboard",
+    //         url: "#",
+    //         icon: <LayoutDashboard />,
+    //         items: [
+    //             {
+    //                 title: "History",
+    //                 url: "#",
+    //             },
+    //             {
+    //                 title: "Starred",
+    //                 url: "#",
+    //             },
+    //             {
+    //                 title: "Settings",
+    //                 url: "#",
+    //             },
+    //         ],
+    //     },
+    //     // {
+    //     //     name: "Members",
+    //     //     url: "#",
+    //     //     icon: <Users />,
+    //     // },
+    //     // {
+    //     //     name: "Clients",
+    //     //     url: "#",
+    //     //     icon: <UsersRound />,
+    //     // },
+    //     // {
+    //     //     name: "Invoices",
+    //     //     url: "#",
+    //     //     icon: <Newspaper />,
+    //     // },
+    //     // {
+    //     //     name: "Payments",
+    //     //     url: "#",
+    //     //     icon: <CircleDollarSign />,
+    //     // },
+    //     // {
+    //     //     name: "Services",
+    //     //     url: "#",
+    //     //     icon: <HandPlatter />,
+    //     // },
+    // ],
 };
 
 export function AppSidebar({ ...props }) {
@@ -281,7 +279,7 @@ export function AppSidebar({ ...props }) {
             </SidebarHeader>
             <SidebarContent>
                 <NavMain items={data.navMain} />
-                <NavProjects projects={data.projects} />
+                {/* <NavProjects projects={data.projects} /> */}
             </SidebarContent>
             <SidebarFooter>
                 <NavUser user={data.user} />
