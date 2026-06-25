@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
-import { TeamSwitcher } from "@/components/team-switcher";
+import { OrganizationSwitcher } from "@/components/organization-switcher";
 import {
     Sidebar,
     SidebarContent,
@@ -32,21 +32,18 @@ const data = {
         email: "bhargab@example.com",
         avatar: "/avatars/shadcn.jpg",
     },
-    teams: [
+    organization: [
         {
             name: "Organization 1",
             logo: <GalleryVerticalEndIcon />,
-            plan: "Organization",
         },
         {
             name: "Organization 2",
             logo: <GalleryVerticalEndIcon />,
-            plan: "Organization",
         },
         {
             name: "Organization 3",
             logo: <GalleryVerticalEndIcon />,
-            plan: "Organization",
         },
     ],
     navMain: [
@@ -55,6 +52,7 @@ const data = {
             url: "/dashboard",
             icon: <LayoutDashboard />,
             isActive: true,
+            hasChild: false,
         },
 
         {
@@ -71,6 +69,7 @@ const data = {
                     url: "/organizations/invitations",
                 },
             ],
+            hasChild: true,
         },
 
         {
@@ -95,6 +94,7 @@ const data = {
                     url: "/members/team",
                 },
             ],
+            hasChild: true,
         },
 
         {
@@ -115,6 +115,7 @@ const data = {
                     url: "/clients/archived",
                 },
             ],
+            hasChild: true,
         },
 
         {
@@ -155,6 +156,7 @@ const data = {
                     url: "/invoices/cancelled",
                 },
             ],
+            hasChild: true,
         },
 
         {
@@ -175,6 +177,7 @@ const data = {
                     url: "/payments/refunds",
                 },
             ],
+            hasChild: true,
         },
 
         {
@@ -195,6 +198,7 @@ const data = {
                     url: "/services/archived",
                 },
             ],
+            hasChild: true,
         },
 
         {
@@ -215,12 +219,14 @@ const data = {
                     url: "/reports/clients",
                 },
             ],
+            hasChild: true,
         },
 
         {
             title: "Settings",
             url: "/settings",
             icon: <Settings />,
+            hasChild: false,
         },
     ],
     // projects: [
@@ -275,11 +281,10 @@ export function AppSidebar({ ...props }) {
     return (
         <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
-                <TeamSwitcher teams={data.teams} />
+                <OrganizationSwitcher organizations={data.organization} />
             </SidebarHeader>
             <SidebarContent>
                 <NavMain items={data.navMain} />
-                {/* <NavProjects projects={data.projects} /> */}
             </SidebarContent>
             <SidebarFooter>
                 <NavUser user={data.user} />
