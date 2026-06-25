@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import MyOrganizations from "./pages/MyOrganizations";
 import Invitations from "./pages/Invitations";
 import ViewMembers from "./pages/ViewMembers";
+import ManageMembers from "./pages/ManageMembers";
 
 function App() {
     const router = createBrowserRouter([
@@ -50,6 +51,10 @@ function App() {
                 {
                     path: "members",
                     element: <ViewMembers />,
+                },
+                {
+                    path: "members/manage",
+                    element: <ManageMembers />,
                 },
             ],
         },
