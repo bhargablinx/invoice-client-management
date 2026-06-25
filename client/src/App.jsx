@@ -7,6 +7,7 @@ import ProtectedLayout from "./layouts/ProtectedLayout";
 import Dashboard from "./pages/Dashboard";
 import MyOrganizations from "./pages/MyOrganizations";
 import Invitations from "./pages/Invitations";
+import ViewMembers from "./pages/ViewMembers";
 
 function App() {
     const router = createBrowserRouter([
@@ -45,6 +46,10 @@ function App() {
                 {
                     path: "organizations/invitations",
                     element: <Invitations />,
+                },
+                {
+                    path: "members",
+                    element: <ViewMembers />,
                 },
             ],
         },
