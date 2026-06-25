@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import AuthLayout from "./layouts/AuthLayout";
 import ProtectedLayout from "./layouts/ProtectedLayout";
 import Dashboard from "./pages/Dashboard";
+import MyOrganizations from "./pages/MyOrganizations";
 
 function App() {
     const router = createBrowserRouter([
@@ -29,12 +30,16 @@ function App() {
         },
         // Protected Routes
         {
-            path: "/dashboard",
+            path: "/",
             element: <ProtectedLayout />,
             children: [
                 {
                     path: "/dashboard",
                     element: <Dashboard />,
+                },
+                {
+                    path: "/organizations",
+                    element: <MyOrganizations />,
                 },
             ],
         },
