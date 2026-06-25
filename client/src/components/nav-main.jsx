@@ -30,12 +30,14 @@ export function NavMain({ items }) {
                             >
                                 <SidebarMenuItem>
                                     <CollapsibleTrigger asChild>
-                                        <SidebarMenuButton tooltip={item.title}>
-                                            {item.icon}
-                                            <Link to={item.url}>
+                                        <Link to={item.url}>
+                                            <SidebarMenuButton
+                                                tooltip={item.title}
+                                            >
+                                                {item.icon}
                                                 <span>{item.title}</span>
-                                            </Link>
-                                        </SidebarMenuButton>
+                                            </SidebarMenuButton>
+                                        </Link>
                                     </CollapsibleTrigger>
                                 </SidebarMenuItem>
                             </Collapsible>
