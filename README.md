@@ -4,6 +4,10 @@
 
 SaaS Invoice & Client Management Platform v1.0
 
+## Pre-Release Preview
+
+![](./preview/dashboard.png)
+
 ### Features
 
 - Dashboard
