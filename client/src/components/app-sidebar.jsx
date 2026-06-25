@@ -78,20 +78,12 @@ const data = {
             icon: <Users />,
             items: [
                 {
-                    title: "All Members",
+                    title: "View Members",
                     url: "/members",
                 },
                 {
-                    title: "Owners",
-                    url: "/members/owners",
-                },
-                {
-                    title: "Admins",
-                    url: "/members/admins",
-                },
-                {
-                    title: "Members",
-                    url: "/members/team",
+                    title: "Manage Members",
+                    url: "/members/manage",
                 },
             ],
             hasChild: true,
