@@ -14,8 +14,17 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useLocation } from "react-router-dom";
 
 const Sidebar = ({ children }) => {
+    const location = useLocation();
+
+    const title = location.pathname
+        .split("/")
+        .filter(Boolean)
+        .pop()
+        ?.replace("-", " ");
+
     return (
         <SidebarProvider>
             <TooltipProvider>
@@ -38,7 +47,10 @@ const Sidebar = ({ children }) => {
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator className="hidden md:block" />
                                 <BreadcrumbItem>
-                                    <BreadcrumbPage>Dashboard</BreadcrumbPage>
+                                    <BreadcrumbPage>
+                                        {title.charAt(0).toUpperCase() +
+                                            title.slice(1)}
+                                    </BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
