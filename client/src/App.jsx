@@ -6,6 +6,7 @@ import AuthLayout from "./layouts/AuthLayout";
 import ProtectedLayout from "./layouts/ProtectedLayout";
 import Dashboard from "./pages/Dashboard";
 import MyOrganizations from "./pages/MyOrganizations";
+import Invitations from "./pages/Invitations";
 
 function App() {
     const router = createBrowserRouter([
@@ -34,12 +35,16 @@ function App() {
             element: <ProtectedLayout />,
             children: [
                 {
-                    path: "/dashboard",
+                    path: "dashboard",
                     element: <Dashboard />,
                 },
                 {
-                    path: "/organizations",
+                    path: "organizations",
                     element: <MyOrganizations />,
+                },
+                {
+                    path: "organizations/invitations",
+                    element: <Invitations />,
                 },
             ],
         },
