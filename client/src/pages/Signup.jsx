@@ -19,24 +19,23 @@ export default function Signup() {
     const dispatch = useDispatch();
 
     const handleResendEmail = async () => {
-        // try {
-        //     setResendLoading(true);
+        try {
+            setResendLoading(true);
 
-        //     const { data } = await api.post("/auth/resend-email", {
-        //         email: registeredEmail,
-        //     });
+            const { data } = await api.post("/auth/resend-email", {
+                email: registeredEmail,
+            });
 
-        //     setAuthSuccess(data.message);
-        //     setAuthError(null);
-        // } catch (error) {
-        //     setAuthError(
-        //         error.response?.data?.message ||
-        //             "Unable to resend verification email.",
-        //     );
-        // } finally {
-        //     setResendLoading(false);
-        // }
-        console.log("Resent");
+            setAuthSuccess(data.message);
+            setAuthError(null);
+        } catch (error) {
+            setAuthError(
+                error.response?.data?.message ||
+                    "Unable to resend verification email.",
+            );
+        } finally {
+            setResendLoading(false);
+        }
     };
 
     const onSubmit = async (formData) => {
