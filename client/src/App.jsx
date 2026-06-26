@@ -17,25 +17,20 @@ import Payments from "./pages/Payments";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 import api from "./lib/axios";
-import { useDispatch, useSelector } from "react-redux";
-import { login, logout, setLoading } from "./features/authSlice";
-import Loading from "./components/Loading";
+import { useDispatch } from "react-redux";
+import { login, logout } from "./features/authSlice";
 
 function App() {
-    const { loading } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
 
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                dispatch(setLoading(true));
                 const response = await api.get("/auth/me");
                 dispatch(login(response.data.data));
             } catch (error) {
                 console.error("Network or setup error:", error.message);
                 dispatch(logout());
-            } finally {
-                dispatch(setLoading(false));
             }
         };
 
@@ -114,8 +109,6 @@ function App() {
             element: <NotFound />,
         },
     ]);
-
-    if (loading) return <Loading />;
 
     return <RouterProvider router={router} />;
 }
