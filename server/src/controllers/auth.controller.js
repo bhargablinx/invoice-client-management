@@ -70,22 +70,22 @@ const signup = asyncHandler(async (req, res) => {
     await user.save({ validateBeforeSave: false });
 
     // Sending Mail
-    // const verificationUrl = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
-    // try {
-    //     await sendMail(
-    //         user.email,
-    //         "Verify Your Email",
-    //         verifyEmailTemplate(verificationUrl)
-    //     );
-    // } catch (error) {
-    //     throw new ApiError(500, "Verification email could not be sent");
-    // }
+    const verificationUrl = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
+    try {
+        await sendMail(
+            user.email,
+            "Verify Your Email",
+            verifyEmailTemplate(verificationUrl)
+        );
+    } catch (error) {
+        throw new ApiError(500, "Verification email could not be sent");
+    }
 
     res.status(201).json(
         new ApiResponse(
             201,
-            verificationToken, // just for testing (remove in production)
-            "User registered successfully and verification url sent to your email!"
+            // verificationToken, // just for testing (remove in production)
+            "Registration Successful and Verification url sent to your email!"
         )
     );
 });
@@ -228,24 +228,18 @@ const resendMail = asyncHandler(async (req, res) => {
     await user.save({ validateBeforeSave: false });
 
     // Re-Sending Mail
-    // const verificationUrl = `${process.env.CLIENT_URL}/verify-email/${newVerificationToken}`;
-    // try {
-    //     await sendMail(
-    //         user.email,
-    //         "Verify Your Email",
-    //         verifyEmailTemplate(verificationUrl)
-    //     );
-    // } catch (error) {
-    //     throw new ApiError(500, "Verification email could not be sent");
-    // }
+    const verificationUrl = `${process.env.CLIENT_URL}/verify-email/${newVerificationToken}`;
+    try {
+        await sendMail(
+            user.email,
+            "Verify Your Email",
+            verifyEmailTemplate(verificationUrl)
+        );
+    } catch (error) {
+        throw new ApiError(500, "Verification email could not be sent");
+    }
 
-    res.status(200).json(
-        new ApiResponse(
-            200,
-            newVerificationToken,
-            "New Verification Mail Sent!!"
-        )
-    );
+    res.status(200).json(new ApiResponse(200, "New Verification Mail Sent!!"));
 });
 
 const verifyMail = asyncHandler(async (req, res) => {
@@ -259,7 +253,9 @@ const verifyMail = asyncHandler(async (req, res) => {
         emailVerificationTokenExpiry: {
             $gt: Date.now(),
         },
-    });
+    }).select(
+        "-password -passwordRecoveryToken -passwordResetTokenExpiry -refreshToken -emailVerificationToken -emailVerificationTokenExpiry"
+    );
 
     if (!user) {
         throw new ApiError(400, "Invalid or expired verification token");
