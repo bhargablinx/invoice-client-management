@@ -100,7 +100,7 @@ const data = {
                 },
                 {
                     title: "Manage Clients",
-                    url: "/clients/archived",
+                    url: "/clients/manage",
                 },
             ],
             hasChild: true,
