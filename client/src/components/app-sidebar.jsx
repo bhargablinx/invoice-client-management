@@ -99,11 +99,7 @@ const data = {
                     url: "/clients",
                 },
                 {
-                    title: "Active Clients",
-                    url: "/clients/active",
-                },
-                {
-                    title: "Archived Clients",
+                    title: "Manage Clients",
                     url: "/clients/archived",
                 },
             ],
