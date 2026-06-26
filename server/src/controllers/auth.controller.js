@@ -95,13 +95,13 @@ const login = asyncHandler(async (req, res) => {
 
     const user = await User.findOne({ email: email.toLowerCase() });
 
+    if (!user) throw new ApiError(401, "Invalid Email or Password!!");
+
     if (user.isDeleted)
         throw new ApiError(403, "This account has been deleted.");
 
     if (!user.isEmailVerified)
         throw new ApiError(403, "Please verify your email before logging in");
-
-    if (!user) throw new ApiError(401, "Invalid Email or Password!!");
 
     const isPassValid = await user.isPasswordCorrect(password); // user not User to access its methods
     if (!isPassValid) throw new ApiError(401, "Invalid email or password!!");
