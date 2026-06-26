@@ -41,19 +41,23 @@ const signup = asyncHandler(async (req, res) => {
     if (!name || !email || !password)
         throw new ApiError(400, "Required Filed is Missing!");
 
-    if (!req.file) throw new ApiError(400, "Avatar is required!");
+    // if (!req.file) throw new ApiError(400, "Avatar is required!");
 
     const existingUser = await User.findOne({ email: email });
 
     if (existingUser)
         throw new ApiError(400, "User already exists with this email!");
 
-    const avatarPath = req.file.path;
-    const cloudinaryResponse = await uploadToCloudinary(avatarPath);
-    if (!cloudinaryResponse) {
-        throw new ApiError(500, "Failed to upload avatar");
+    const avatar = "";
+
+    if (req.file) {
+        const avatarPath = req.file.path;
+        const cloudinaryResponse = await uploadToCloudinary(avatarPath);
+        if (!cloudinaryResponse) {
+            throw new ApiError(500, "Failed to upload avatar");
+        }
+        avatar = cloudinaryResponse.url;
     }
-    const avatar = cloudinaryResponse.url;
 
     const user = await User.create({
         name,
