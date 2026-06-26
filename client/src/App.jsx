@@ -9,6 +9,7 @@ import MyOrganizations from "./pages/MyOrganizations";
 import Invitations from "./pages/Invitations";
 import ViewMembers from "./pages/ViewMembers";
 import ManageMembers from "./pages/ManageMembers";
+import AllClients from "./pages/AllClients";
 
 function App() {
     const router = createBrowserRouter([
@@ -54,6 +55,14 @@ function App() {
                 },
                 {
                     path: "members/manage",
+                    element: <ManageMembers />,
+                },
+                {
+                    path: "clients",
+                    element: <AllClients />,
+                },
+                {
+                    path: "clients/mange",
                     element: <ManageMembers />,
                 },
             ],
