@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "@/features/authSlice";
 import api from "@/lib/axios";
+import { Loader2 } from "lucide-react";
 
 export default function Signup() {
     const { register, handleSubmit } = useForm();
@@ -20,8 +21,7 @@ export default function Signup() {
         try {
             dispatch(setLoading(true));
             const response = await api.post("/auth/signup", formData);
-            setSuccess(response.data.message);
-            console.log(response.data);
+            setSuccess(response.data.data);
         } catch (error) {
             const message = error.response?.data?.message || "Unknown error";
 
@@ -120,18 +120,31 @@ export default function Signup() {
                     )}
 
                     <Button
+                        type="submit"
                         size="lg"
+                        disabled={loading || authSuccess}
                         className="
-                            w-full
-                            shadow-lg
-                            shadow-primary/20
-                            transition-all
-                            duration-300
-                            hover:-translate-y-0.5
-                            hover:shadow-xl
-                        "
+                                w-full
+                                shadow-lg
+                                shadow-primary/20
+                                transition-all
+                                duration-300
+                                hover:-translate-y-0.5
+                                hover:shadow-xl
+                                disabled:pointer-events-none
+                                disabled:opacity-70
+                            "
                     >
-                        Create Account
+                        {loading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Creating Account...
+                            </>
+                        ) : authSuccess ? (
+                            "Account Created"
+                        ) : (
+                            "Create Account"
+                        )}
                     </Button>
                 </form>
 
