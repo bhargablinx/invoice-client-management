@@ -32,10 +32,7 @@ function App() {
                 const response = await api.get("/auth/me");
                 dispatch(login(response.data.data));
             } catch (error) {
-                console.error(
-                    "Network or setup error:",
-                    error.response.message,
-                );
+                console.error("Network or setup error:", error.message);
                 dispatch(logout());
             } finally {
                 dispatch(setLoading(false));
