@@ -110,83 +110,22 @@ const data = {
             title: "Invoices",
             url: "/invoices",
             icon: <Receipt />,
-            items: [
-                {
-                    title: "All Invoices",
-                    url: "/invoices",
-                },
-                {
-                    title: "Draft",
-                    url: "/invoices/draft",
-                },
-                {
-                    title: "Sent",
-                    url: "/invoices/sent",
-                },
-                {
-                    title: "Viewed",
-                    url: "/invoices/viewed",
-                },
-                {
-                    title: "Partially Paid",
-                    url: "/invoices/partially-paid",
-                },
-                {
-                    title: "Paid",
-                    url: "/invoices/paid",
-                },
-                {
-                    title: "Overdue",
-                    url: "/invoices/overdue",
-                },
-                {
-                    title: "Cancelled",
-                    url: "/invoices/cancelled",
-                },
-            ],
-            hasChild: true,
+
+            hasChild: false,
         },
 
         {
             title: "Payments",
             url: "/payments",
             icon: <CircleDollarSign />,
-            items: [
-                {
-                    title: "All Payments",
-                    url: "/payments",
-                },
-                {
-                    title: "Recent Payments",
-                    url: "/payments/recent",
-                },
-                {
-                    title: "Refunds",
-                    url: "/payments/refunds",
-                },
-            ],
-            hasChild: true,
+            hasChild: false,
         },
 
         {
             title: "Services",
             url: "/services",
             icon: <HandPlatter />,
-            items: [
-                {
-                    title: "All Services",
-                    url: "/services",
-                },
-                {
-                    title: "Active Services",
-                    url: "/services/active",
-                },
-                {
-                    title: "Archived Services",
-                    url: "/services/archived",
-                },
-            ],
-            hasChild: true,
+            hasChild: false,
         },
 
         {
