@@ -4,26 +4,35 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import Loading from "@/components/Loading";
-import { useDispatch } from "react-redux";
-import { login } from "@/features/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { login, setLoading } from "@/features/authSlice";
+import api from "@/lib/axios";
 
 export default function Login() {
-    const [authError, setAuthError] = useState();
+    const [authError, setAuthError] = useState(null);
     const { register, handleSubmit } = useForm();
-    const [isLoading, setIsLoading] = useState(false); // fake
     const dispatch = useDispatch();
+    const { loading } = useSelector((state) => state.auth);
 
-    const onSubmit = (formData) => {
-        // Fake
-        setIsLoading(true);
-        setTimeout(() => {
-            console.log(formData);
-            dispatch(login());
-            setIsLoading(false);
-        }, [800]);
+    const onSubmit = async (formData) => {
+        setAuthError(null);
+        try {
+            dispatch(setLoading(true));
+            const response = await api.post("/auth/login", formData);
+            dispatch(login(response.data.data));
+        } catch (error) {
+            if (error.response) {
+                const { message } = error.response.data;
+                setAuthError(message);
+            } else {
+                console.error("Network or setup error:", error.message);
+            }
+        } finally {
+            dispatch(setLoading(false));
+        }
     };
 
-    if (isLoading) return <Loading />;
+    if (loading) return <Loading />;
 
     return (
         <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-6">
