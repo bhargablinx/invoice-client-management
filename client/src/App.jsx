@@ -14,6 +14,7 @@ import ManageClients from "./pages/ManageClients";
 import ViewInvoices from "./pages/ViewInvoices";
 import ManageInvoices from "./pages/ManageInvoices";
 import Payments from "./pages/Payments";
+import NotFound from "./pages/NotFound";
 
 function App() {
     const router = createBrowserRouter([
@@ -82,6 +83,10 @@ function App() {
                     element: <Payments />,
                 },
             ],
+        },
+        {
+            path: "*",
+            element: <NotFound />,
         },
     ]);
 
