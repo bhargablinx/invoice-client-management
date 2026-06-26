@@ -11,6 +11,7 @@ import ViewMembers from "./pages/ViewMembers";
 import ManageMembers from "./pages/ManageMembers";
 import AllClients from "./pages/AllClients";
 import ManageClients from "./pages/ManageClients";
+import ViewInvoices from "./pages/ViewInvoices";
 
 function App() {
     const router = createBrowserRouter([
@@ -65,6 +66,10 @@ function App() {
                 {
                     path: "clients/manage",
                     element: <ManageClients />,
+                },
+                {
+                    path: "invoices",
+                    element: <ViewInvoices />,
                 },
             ],
         },
