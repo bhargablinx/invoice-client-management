@@ -13,6 +13,7 @@ import AllClients from "./pages/AllClients";
 import ManageClients from "./pages/ManageClients";
 import ViewInvoices from "./pages/ViewInvoices";
 import ManageInvoices from "./pages/ManageInvoices";
+import Payments from "./pages/Payments";
 
 function App() {
     const router = createBrowserRouter([
@@ -75,6 +76,10 @@ function App() {
                 {
                     path: "invoices/manage",
                     element: <ManageInvoices />,
+                },
+                {
+                    path: "payments",
+                    element: <Payments />,
                 },
             ],
         },
