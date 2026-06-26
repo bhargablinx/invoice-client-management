@@ -4,26 +4,32 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { signup } from "@/features/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading } from "@/features/authSlice";
+import api from "@/lib/axios";
 
 export default function Signup() {
     const { register, handleSubmit } = useForm();
-    const [isLoading, setIsLoading] = useState(false); // fake
-    const [authError, setAuthError] = useState();
+    const { loading } = useSelector((state) => state.auth);
+    const [authError, setAuthError] = useState(null);
+    const [authSuccess, setSuccess] = useState(null);
     const dispatch = useDispatch();
+    const onSubmit = async (formData) => {
+        setAuthError(null);
+        setSuccess(null);
+        try {
+            dispatch(setLoading(true));
+            const response = await api.post("/auth/signup", formData);
+            setSuccess(response.data.message);
+            console.log(response.data);
+        } catch (error) {
+            const message = error.response?.data?.message || "Unknown error";
 
-    const onSubmit = (formData) => {
-        // Fake
-        setIsLoading(true);
-        setTimeout(() => {
-            console.log(formData);
-            dispatch(signup());
-            setIsLoading(false);
-        }, [800]);
+            setAuthError(message);
+        } finally {
+            dispatch(setLoading(false));
+        }
     };
-
-    if (isLoading) return <Loading />;
 
     return (
         <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-6">
@@ -102,7 +108,15 @@ export default function Signup() {
                     </div>
 
                     {authError && (
-                        <p className="text-sm text-red-500">{authError}</p>
+                        <p className="text-sm text-red-500 text-center">
+                            {authError}
+                        </p>
+                    )}
+
+                    {authSuccess && (
+                        <p className="text-sm text-green-700 font-bold text-center">
+                            {authSuccess}
+                        </p>
                     )}
 
                     <Button
