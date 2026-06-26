@@ -110,8 +110,17 @@ const data = {
             title: "Invoices",
             url: "/invoices",
             icon: <Receipt />,
-
-            hasChild: false,
+            items: [
+                {
+                    title: "Invoices Dashboard",
+                    url: "/invoices",
+                },
+                {
+                    title: "Manage Invoices",
+                    url: "/invoices/manage",
+                },
+            ],
+            hasChild: true,
         },
 
         {
