@@ -31,10 +31,6 @@ const ProtectedLayout = () => {
         return <Navigate to="/organizations/new" replace />;
     }
 
-    if (organizations.length && onCreateOrgPage) {
-        return <Navigate to="/dashboard" replace />;
-    }
-
     return (
         <>
             <Sidebar>
