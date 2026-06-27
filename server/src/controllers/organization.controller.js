@@ -107,6 +107,41 @@ const getOrganization = asyncHandler(async (req, res) => {
     );
 });
 
+const getMyOrganizations = asyncHandler(async (req, res) => {
+    const memberships = await Membership.find({
+        user: req.user._id,
+        status: "active",
+    })
+        .populate({
+            path: "organization",
+            match: { isActive: true },
+            populate: {
+                path: "owner",
+                select: "name email avatar",
+            },
+        })
+        .sort({ createdAt: -1 })
+        .lean();
+
+    const organizations = memberships
+        .filter((membership) => membership.organization)
+        .map((membership) => ({
+            ...membership.organization,
+            role: membership.role,
+            membershipId: membership._id,
+        }));
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                organizations,
+                "My organizations fetched successfully"
+            )
+        );
+});
+
 const updateOrganization = asyncHandler(async (req, res) => {
     const { organizationId } = req.params;
 
@@ -175,6 +210,7 @@ const deleteOrganization = asyncHandler(async (req, res) => {
 export {
     createOrganization,
     getOrganization,
+    getMyOrganizations,
     updateOrganization,
     deleteOrganization,
 };

@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
     createOrganization,
     getOrganization,
+    getMyOrganizations,
     updateOrganization,
     deleteOrganization,
 } from "../controllers/organization.controller.js";
@@ -54,6 +55,9 @@ const router = Router();
 
 // Any authorized user can create
 router.route("/").post(upload.single("logo"), verifyJWT, createOrganization);
+router
+    .route("/")
+    .get(verifyJWT, authorizeRoles("owner", "admin", "member"), getMyOrganizations);
 
 // User for that organization can get info
 router
