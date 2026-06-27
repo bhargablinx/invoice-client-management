@@ -106,11 +106,11 @@ router
 
 router
     .route("/:organizationId/clients/:clientId/invoices")
-    .delete(verifyJWT, getClientInvoices);
+    .get(verifyJWT, getClientInvoices);
 
 router
     .route("/:organizationId/clients/:clientId/stats")
-    .delete(verifyJWT, getClientStats);
+    .get(verifyJWT, getClientStats);
 
 // INVOICE MANAGEMENT
 router
