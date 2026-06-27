@@ -5,6 +5,8 @@ export const createOrganization = (data) =>
         headers: { "Content-Type": "multipart/form-data" },
     });
 
+export const getMyOrganizations = () => api.get("/organizations");
+
 export const getOrganization = (organizationId) =>
     api.get(`/organizations/${organizationId}`);
 

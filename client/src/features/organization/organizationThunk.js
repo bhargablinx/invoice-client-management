@@ -32,6 +32,18 @@ export const getOrganization = createAsyncThunk(
     },
 );
 
+export const getMyOrganizations = createAsyncThunk(
+    "organization/getMyOrganizations",
+    async (_, thunkAPI) => {
+        try {
+            const { data: response } = await organizationAPI.getMyOrganizations();
+            return response.data;
+        } catch (error) {
+            return thunkAPI.rejectWithValue(getErrorMessage(error));
+        }
+    },
+);
+
 export const updateOrganization = createAsyncThunk(
     "organization/updateOrganization",
     async ({ organizationId, data }, thunkAPI) => {
@@ -60,4 +72,3 @@ export const deleteOrganization = createAsyncThunk(
         }
     },
 );
-

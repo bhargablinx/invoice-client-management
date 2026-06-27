@@ -2,12 +2,14 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
     createOrganization,
     getOrganization,
+    getMyOrganizations,
     updateOrganization,
     deleteOrganization,
 } from "./organizationThunk";
 
 const initialState = {
     organization: null,
+    organizations: [],
     loading: false,
     error: null,
 };
@@ -34,6 +36,7 @@ export const organizationSlice = createSlice({
             .addCase(createOrganization.fulfilled, (state, action) => {
                 state.loading = false;
                 state.organization = action.payload;
+                state.organizations = [action.payload, ...state.organizations];
             })
             .addCase(createOrganization.rejected, rejected)
             .addCase(getOrganization.pending, pending)
@@ -42,6 +45,13 @@ export const organizationSlice = createSlice({
                 state.organization = action.payload;
             })
             .addCase(getOrganization.rejected, rejected)
+            .addCase(getMyOrganizations.pending, pending)
+            .addCase(getMyOrganizations.fulfilled, (state, action) => {
+                state.loading = false;
+                state.organizations = action.payload ?? [];
+                state.organization = action.payload?.[0] ?? null;
+            })
+            .addCase(getMyOrganizations.rejected, rejected)
             .addCase(updateOrganization.pending, pending)
             .addCase(updateOrganization.fulfilled, (state, action) => {
                 state.loading = false;
@@ -60,4 +70,3 @@ export const organizationSlice = createSlice({
 export const { clearOrganizationState } = organizationSlice.actions;
 
 export default organizationSlice.reducer;
-
