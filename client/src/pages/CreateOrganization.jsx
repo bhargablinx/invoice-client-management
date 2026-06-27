@@ -28,9 +28,7 @@ const timezones = [
 const CreateOrganization = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { loading, error, organizations } = useSelector(
-        (state) => state.organization,
-    );
+    const { loading, error } = useSelector((state) => state.organization);
     const { register, handleSubmit, setValue, watch } = useForm({
         defaultValues: {
             currency: "INR",
@@ -49,12 +47,6 @@ const CreateOrganization = () => {
         return () => URL.revokeObjectURL(objectUrl);
     }, [logoFile]);
 
-    useEffect(() => {
-        if (organizations.length) {
-            navigate("/dashboard", { replace: true });
-        }
-    }, [navigate, organizations.length]);
-
     const onSubmit = async (formData) => {
         const payload = new FormData();
 
@@ -71,7 +63,7 @@ const CreateOrganization = () => {
         const result = await dispatch(createOrganization(payload));
 
         if (createOrganization.fulfilled.match(result)) {
-            navigate("/dashboard", { replace: true });
+            navigate("/organizations", { replace: true });
         }
     };
 
@@ -87,9 +79,10 @@ const CreateOrganization = () => {
                             Create your organization
                         </h1>
                         <p className="max-w-xl text-muted-foreground">
-                            Set up the default organization for your workspace.
-                            Once it’s created, you’ll be taken directly into the
-                            dashboard.
+                            If this is your first organization, create one to
+                            continue. If you already have at least one
+                            organization, you can create additional ones here
+                            whenever needed.
                         </p>
                     </div>
 
@@ -123,10 +116,13 @@ const CreateOrganization = () => {
                                     <Input
                                         type="file"
                                         accept="image/*"
-                                        {...register("logo", { required: true })}
+                                        {...register("logo", {
+                                            required: true,
+                                        })}
                                     />
                                     <p className="mt-2 text-xs text-muted-foreground">
-                                        Upload a logo image for your organization.
+                                        Upload a logo image for your
+                                        organization.
                                     </p>
                                 </div>
                             </div>
@@ -161,7 +157,9 @@ const CreateOrganization = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Tax ID</label>
+                            <label className="text-sm font-medium">
+                                Tax ID
+                            </label>
                             <Input
                                 {...register("taxId")}
                                 placeholder="GSTIN / VAT"
