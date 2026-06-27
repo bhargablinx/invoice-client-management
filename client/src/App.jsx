@@ -14,6 +14,7 @@ import ManageClients from "./pages/ManageClients";
 import ViewInvoices from "./pages/ViewInvoices";
 import ManageInvoices from "./pages/ManageInvoices";
 import Payments from "./pages/Payments";
+import CreateOrganization from "./pages/CreateOrganization";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
@@ -58,6 +59,10 @@ function App() {
                 {
                     path: "dashboard",
                     element: <Dashboard />,
+                },
+                {
+                    path: "organizations/new",
+                    element: <CreateOrganization />,
                 },
                 {
                     path: "organizations",
