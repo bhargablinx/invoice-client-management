@@ -7,51 +7,29 @@ import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "@/features/auth/authSlice";
 import api from "@/lib/axios";
 import { Loader2, CheckCircle2 } from "lucide-react";
+import { resendVerification, signupUser } from "@/features/auth/authThunk";
 
 export default function Signup() {
     const { register, handleSubmit } = useForm();
-    const { loading } = useSelector((state) => state.auth);
-    const [authError, setAuthError] = useState(null);
+    const { loading, error } = useSelector((state) => state.auth);
     const [authSuccess, setAuthSuccess] = useState(null);
-    const [resendLoading, setResendLoading] = useState(false);
+    // const [resendLoading, setResendLoading] = useState(false);
     const [registeredEmail, setRegisteredEmail] = useState("");
     const dispatch = useDispatch();
 
     const handleResendEmail = async () => {
-        try {
-            setResendLoading(true);
-
-            const { data } = await api.post("/auth/resend-email", {
-                email: registeredEmail,
-            });
-
-            setAuthSuccess(data.message);
-            setAuthError(null);
-        } catch (error) {
-            setAuthError(
-                error.response?.data?.message ||
-                    "Unable to resend verification email.",
-            );
-        } finally {
-            setResendLoading(false);
-        }
+        dispatch(setLoading(true));
+        const result = await dispatch(
+            resendVerification({ email: registeredEmail }),
+        );
+        setAuthSuccess(result.payload.data.data);
+        dispatch(setLoading(false));
     };
 
     const onSubmit = async (formData) => {
-        setAuthError(null);
-        setAuthSuccess(null);
-        try {
-            dispatch(setLoading(true));
-            const response = await api.post("/auth/signup", formData);
-            setAuthSuccess(response.data.data);
-            setRegisteredEmail(formData.email);
-        } catch (error) {
-            const message = error.response?.data?.message || "Unknown error";
-
-            setAuthError(message);
-        } finally {
-            dispatch(setLoading(false));
-        }
+        const result = await dispatch(signupUser(formData));
+        setAuthSuccess(result.payload);
+        setRegisteredEmail(formData.email);
     };
 
     return (
@@ -140,9 +118,9 @@ export default function Signup() {
                                 />
                             </div>
 
-                            {authError && (
+                            {error && (
                                 <p className="text-center text-sm text-red-500">
-                                    {authError}
+                                    {error}
                                 </p>
                             )}
 
@@ -202,17 +180,23 @@ export default function Signup() {
                             </p>
                         </div>
 
-                        {authError && (
-                            <p className="text-sm text-red-500">{authError}</p>
+                        {error && (
+                            <p className="text-sm text-red-500">{error}</p>
+                        )}
+
+                        {authSuccess && (
+                            <p className="text-sm text-green-700 font-bold">
+                                {authSuccess}
+                            </p>
                         )}
 
                         <Button
                             variant="outline"
                             className="w-full"
                             onClick={handleResendEmail}
-                            disabled={resendLoading}
+                            disabled={loading}
                         >
-                            {resendLoading ? (
+                            {loading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     Sending...
