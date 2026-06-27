@@ -13,7 +13,6 @@ import {
     SidebarRail,
 } from "@/components/ui/sidebar";
 import {
-    GalleryVerticalEndIcon,
     LayoutDashboard,
     Building2,
     Users,
@@ -24,23 +23,9 @@ import {
     Settings,
     Receipt,
 } from "lucide-react";
+import { useSelector } from "react-redux";
 
-// This is sample data.
 const data = {
-    organization: [
-        {
-            name: "Organization 1",
-            logo: <GalleryVerticalEndIcon />,
-        },
-        {
-            name: "Organization 2",
-            logo: <GalleryVerticalEndIcon />,
-        },
-        {
-            name: "Organization 3",
-            logo: <GalleryVerticalEndIcon />,
-        },
-    ],
     navMain: [
         {
             title: "Dashboard",
@@ -163,10 +148,14 @@ const data = {
 };
 
 export function AppSidebar({ ...props }) {
+    const organizations = useSelector(
+        (state) => state.organization.organizations,
+    );
+
     return (
         <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
-                <OrganizationSwitcher organizations={data.organization} />
+                <OrganizationSwitcher organizations={organizations} />
             </SidebarHeader>
             <SidebarContent>
                 <NavMain items={data.navMain} />
