@@ -6,6 +6,8 @@ import { uploadToCloudinary } from "../utils/uploadToCloudinary.js";
 import { generateSlug } from "../utils/generateSlug.js";
 import mongoose from "mongoose";
 import Membership from "../models/membership.model.js";
+import Client from "../models/client.model.js";
+import Invoice from "../models/invoice.model.js";
 
 const createOrganization = asyncHandler(async (req, res) => {
     const { name, email, phone, website, address, taxId, currency, timezone } =
@@ -125,18 +127,40 @@ const getMyOrganizations = asyncHandler(async (req, res) => {
 
     const organizations = memberships
         .filter((membership) => membership.organization)
-        .map((membership) => ({
-            ...membership.organization,
-            role: membership.role,
-            membershipId: membership._id,
-        }));
+        .map(async (membership) => {
+            const organizationId = membership.organization._id;
+            const [memberCount, clientCount, invoiceCount] = await Promise.all([
+                Membership.countDocuments({
+                    organization: organizationId,
+                    status: "active",
+                }),
+                Client.countDocuments({
+                    organization: organizationId,
+                    isActive: true,
+                }),
+                Invoice.countDocuments({
+                    organization: organizationId,
+                }),
+            ]);
+
+            return {
+                ...membership.organization,
+                role: membership.role,
+                membershipId: membership._id,
+                membersCount: memberCount,
+                clientsCount: clientCount,
+                invoicesCount: invoiceCount,
+            };
+        });
+
+    const resolvedOrganizations = await Promise.all(organizations);
 
     return res
         .status(200)
         .json(
             new ApiResponse(
                 200,
-                organizations,
+                resolvedOrganizations,
                 "My organizations fetched successfully"
             )
         );
