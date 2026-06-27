@@ -15,16 +15,12 @@ import {
     useSidebar,
 } from "@/components/ui/sidebar";
 import { logoutUser } from "@/features/auth/authThunk";
-import {
-    ChevronsUpDownIcon,
-    SparklesIcon,
-    BadgeCheckIcon,
-    BellIcon,
-    LogOutIcon,
-} from "lucide-react";
-import { useDispatch } from "react-redux";
+import { getInitials } from "@/lib/helper";
+import { ChevronsUpDownIcon, BadgeCheckIcon, LogOutIcon } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
 
-export function NavUser({ user }) {
+export function NavUser() {
+    const { user } = useSelector((state) => state.auth);
     const { isMobile } = useSidebar();
     const dispatch = useDispatch();
     const handleLogout = async () => {
@@ -46,7 +42,7 @@ export function NavUser({ user }) {
                                     alt={user.name}
                                 />
                                 <AvatarFallback className="rounded-lg">
-                                    CN
+                                    {getInitials(user.name)}
                                 </AvatarFallback>
                             </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight">
@@ -74,7 +70,7 @@ export function NavUser({ user }) {
                                         alt={user.name}
                                     />
                                     <AvatarFallback className="rounded-lg">
-                                        CN
+                                        {getInitials(user.name)}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
@@ -88,21 +84,11 @@ export function NavUser({ user }) {
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                            <DropdownMenuItem>
-                                <SparklesIcon />
-                                Upgrade to Pro
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
                             <DropdownMenuItem>
                                 <BadgeCheckIcon />
                                 Account
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <BellIcon />
-                                Notifications
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
