@@ -16,22 +16,15 @@ import ManageInvoices from "./pages/ManageInvoices";
 import Payments from "./pages/Payments";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
-import api from "./lib/axios";
 import { useDispatch } from "react-redux";
-import { login, logout } from "./features/auth/authSlice";
+import { getCurrentUser } from "./features/auth/authThunk";
 
 function App() {
     const dispatch = useDispatch();
 
     useEffect(() => {
         const fetchUser = async () => {
-            try {
-                const response = await api.get("/auth/me");
-                dispatch(login(response.data.data));
-            } catch (error) {
-                console.error("Network or setup error:", error.message);
-                dispatch(logout());
-            }
+            await dispatch(getCurrentUser());
         };
 
         fetchUser();
