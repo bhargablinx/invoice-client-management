@@ -55,9 +55,7 @@ const router = Router();
 
 // Any authorized user can create
 router.route("/").post(upload.single("logo"), verifyJWT, createOrganization);
-router
-    .route("/")
-    .get(verifyJWT, authorizeRoles("owner", "admin", "member"), getMyOrganizations);
+router.route("/").get(verifyJWT, getMyOrganizations);
 
 // User for that organization can get info
 router
