@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "@/features/auth/authSlice";
-import api from "@/lib/axios";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { resendVerification, signupUser } from "@/features/auth/authThunk";
 
@@ -13,7 +12,6 @@ export default function Signup() {
     const { register, handleSubmit } = useForm();
     const { loading, error } = useSelector((state) => state.auth);
     const [authSuccess, setAuthSuccess] = useState(null);
-    // const [resendLoading, setResendLoading] = useState(false);
     const [registeredEmail, setRegisteredEmail] = useState("");
     const dispatch = useDispatch();
 
