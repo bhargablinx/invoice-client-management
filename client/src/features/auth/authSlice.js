@@ -26,17 +26,6 @@ export const authSlice = createSlice({
             state.loading = action.payload;
         },
 
-        login: (state, action) => {
-            state.user = action.payload;
-            state.isAuthenticated = true;
-        },
-
-        logout: (state) => {
-            state.user = null;
-            state.isAuthenticated = false;
-            state.loading = false;
-        },
-
         updateUser: (state, action) => {
             state.user = {
                 ...state.user,
