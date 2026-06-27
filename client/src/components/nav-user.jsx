@@ -14,6 +14,8 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from "@/components/ui/sidebar";
+import { logout } from "@/features/authSlice";
+import api from "@/lib/axios";
 import {
     ChevronsUpDownIcon,
     SparklesIcon,
@@ -21,9 +23,20 @@ import {
     BellIcon,
     LogOutIcon,
 } from "lucide-react";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
 
 export function NavUser({ user }) {
     const { isMobile } = useSidebar();
+    const dispatch = useDispatch();
+    const handleLogout = async () => {
+        try {
+            await api.post("/auth/logout");
+            dispatch(logout());
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
 
     return (
         <SidebarMenu>
@@ -100,7 +113,7 @@ export function NavUser({ user }) {
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleLogout}>
                             <LogOutIcon />
                             Log out
                         </DropdownMenuItem>
