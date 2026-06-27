@@ -2,24 +2,17 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
 import Loading from "@/components/Loading";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "@/features/auth/authThunk";
 
 export default function Login() {
-    const [authError, setAuthError] = useState(null);
     const { register, handleSubmit } = useForm();
     const dispatch = useDispatch();
-    const { loading } = useSelector((state) => state.auth);
+    const { loading, error } = useSelector((state) => state.auth);
 
     const onSubmit = async (formData) => {
-        setAuthError(null);
-        const result = await dispatch(loginUser(formData));
-
-        if (loginUser.rejected.match(result)) {
-            setAuthError(result.payload?.message);
-        }
+        await dispatch(loginUser(formData));
     };
 
     if (loading) return <Loading />;
@@ -100,8 +93,10 @@ export default function Login() {
                         </Link>
                     </div>
 
-                    {authError && (
-                        <p className="text-sm text-red-500">{authError}</p>
+                    {error && (
+                        <p className="text-sm text-red-500 text-center">
+                            {error}
+                        </p>
                     )}
 
                     <Button
