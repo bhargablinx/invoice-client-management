@@ -1,13 +1,39 @@
 import Sidebar from "@/components/Sidebar";
-import { useSelector } from "react-redux";
-import { Navigate, Outlet } from "react-router-dom";
+import Loading from "@/components/Loading";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { getMyOrganizations } from "@/features/organization/organizationThunk";
 
 const ProtectedLayout = () => {
-    const { isAuthenticated } = useSelector((state) => state.auth);
+    const dispatch = useDispatch();
+    const location = useLocation();
+    const { isAuthenticated, loading: authLoading } = useSelector(
+        (state) => state.auth,
+    );
+    const { organizations, loading: orgLoading } = useSelector(
+        (state) => state.organization,
+    );
 
-    console.log(isAuthenticated);
+    useEffect(() => {
+        if (isAuthenticated) {
+            dispatch(getMyOrganizations());
+        }
+    }, [dispatch, isAuthenticated]);
 
-    if (!isAuthenticated) return <Navigate to="/signup" />;
+    if (!isAuthenticated) return <Navigate to="/signup" replace />;
+
+    if (authLoading || orgLoading) return <Loading />;
+
+    const onCreateOrgPage = location.pathname === "/organizations/new";
+
+    if (!organizations.length && !onCreateOrgPage) {
+        return <Navigate to="/organizations/new" replace />;
+    }
+
+    if (organizations.length && onCreateOrgPage) {
+        return <Navigate to="/dashboard" replace />;
+    }
 
     return (
         <>
