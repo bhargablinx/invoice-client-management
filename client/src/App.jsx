@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { getCurrentUser } from "./features/auth/authThunk";
+import { getMyOrganizations } from "./features/organization/organizationThunk";
 
 function App() {
     const dispatch = useDispatch();
@@ -26,6 +27,7 @@ function App() {
     useEffect(() => {
         const fetchUser = async () => {
             await dispatch(getCurrentUser());
+            await dispatch(getMyOrganizations());
         };
 
         fetchUser();
