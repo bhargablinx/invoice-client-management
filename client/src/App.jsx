@@ -18,7 +18,7 @@ import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 import api from "./lib/axios";
 import { useDispatch } from "react-redux";
-import { login, logout } from "./features/authSlice";
+import { login, logout } from "./features/auth/authSlice";
 
 function App() {
     const dispatch = useDispatch();

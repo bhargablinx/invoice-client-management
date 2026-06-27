@@ -5,8 +5,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import Loading from "@/components/Loading";
 import { useDispatch, useSelector } from "react-redux";
-import { login, setLoading } from "@/features/authSlice";
-import api from "@/lib/axios";
+import { loginUser } from "@/features/auth/authThunk";
 
 export default function Login() {
     const [authError, setAuthError] = useState(null);
@@ -16,19 +15,10 @@ export default function Login() {
 
     const onSubmit = async (formData) => {
         setAuthError(null);
-        try {
-            dispatch(setLoading(true));
-            const response = await api.post("/auth/login", formData);
-            dispatch(login(response.data.data));
-        } catch (error) {
-            if (error.response) {
-                const { message } = error.response.data;
-                setAuthError(message);
-            } else {
-                console.error("Network or setup error:", error.message);
-            }
-        } finally {
-            dispatch(setLoading(false));
+        const result = await dispatch(loginUser(formData));
+
+        if (loginUser.rejected.match(result)) {
+            setAuthError(result.payload?.message);
         }
     };
 

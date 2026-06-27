@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setLoading } from "@/features/authSlice";
+import { setLoading } from "@/features/auth/authSlice";
 import api from "@/lib/axios";
 import { Loader2, CheckCircle2 } from "lucide-react";
 

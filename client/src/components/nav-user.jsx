@@ -14,7 +14,7 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from "@/components/ui/sidebar";
-import { logout } from "@/features/authSlice";
+import { logout } from "@/features/auth/authSlice";
 import api from "@/lib/axios";
 import {
     ChevronsUpDownIcon,
