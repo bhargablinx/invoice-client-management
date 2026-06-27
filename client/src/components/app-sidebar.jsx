@@ -27,11 +27,6 @@ import {
 
 // This is sample data.
 const data = {
-    user: {
-        name: "bhargab",
-        email: "bhargab@example.com",
-        avatar: "/avatars/shadcn.jpg",
-    },
     organization: [
         {
             name: "Organization 1",
@@ -165,52 +160,6 @@ const data = {
             hasChild: false,
         },
     ],
-    // projects: [
-    //     {
-    //         name: "Dashboard",
-    //         url: "#",
-    //         icon: <LayoutDashboard />,
-    //         items: [
-    //             {
-    //                 title: "History",
-    //                 url: "#",
-    //             },
-    //             {
-    //                 title: "Starred",
-    //                 url: "#",
-    //             },
-    //             {
-    //                 title: "Settings",
-    //                 url: "#",
-    //             },
-    //         ],
-    //     },
-    //     // {
-    //     //     name: "Members",
-    //     //     url: "#",
-    //     //     icon: <Users />,
-    //     // },
-    //     // {
-    //     //     name: "Clients",
-    //     //     url: "#",
-    //     //     icon: <UsersRound />,
-    //     // },
-    //     // {
-    //     //     name: "Invoices",
-    //     //     url: "#",
-    //     //     icon: <Newspaper />,
-    //     // },
-    //     // {
-    //     //     name: "Payments",
-    //     //     url: "#",
-    //     //     icon: <CircleDollarSign />,
-    //     // },
-    //     // {
-    //     //     name: "Services",
-    //     //     url: "#",
-    //     //     icon: <HandPlatter />,
-    //     // },
-    // ],
 };
 
 export function AppSidebar({ ...props }) {
@@ -223,7 +172,7 @@ export function AppSidebar({ ...props }) {
                 <NavMain items={data.navMain} />
             </SidebarContent>
             <SidebarFooter>
-                <NavUser user={data.user} />
+                <NavUser />
             </SidebarFooter>
             <SidebarRail />
         </Sidebar>
