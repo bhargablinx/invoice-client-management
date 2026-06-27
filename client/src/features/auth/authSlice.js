@@ -1,5 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { loginUser } from "./authThunk";
+import {
+    loginUser,
+    signupUser,
+    getCurrentUser,
+    logoutUser,
+    changePassword,
+    forgotPassword,
+    refreshAuthToken,
+    resendVerification,
+    deleteUser,
+} from "./authThunk";
 
 const initialState = {
     user: null,
@@ -36,6 +46,8 @@ export const authSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+
+            // ================= LOGIN =================
             .addCase(loginUser.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -48,6 +60,95 @@ export const authSlice = createSlice({
             .addCase(loginUser.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload?.message;
+            })
+
+            // ================= SIGNUP =================
+            .addCase(signupUser.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(signupUser.fulfilled, (state) => {
+                state.loading = false;
+            })
+            .addCase(signupUser.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload?.message;
+            })
+
+            // ================= CURRENT USER =================
+            .addCase(getCurrentUser.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(getCurrentUser.fulfilled, (state, action) => {
+                state.loading = false;
+                state.user = action.payload;
+                state.isAuthenticated = true;
+            })
+            .addCase(getCurrentUser.rejected, (state) => {
+                state.loading = false;
+                state.user = null;
+                state.isAuthenticated = false;
+            })
+
+            // ================= LOGOUT =================
+            .addCase(logoutUser.fulfilled, (state) => {
+                state.user = null;
+                state.isAuthenticated = false;
+                state.loading = false;
+                state.error = null;
+            })
+
+            // ================= CHANGE PASSWORD =================
+            .addCase(changePassword.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(changePassword.fulfilled, (state) => {
+                state.loading = false;
+            })
+            .addCase(changePassword.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload?.message;
+            })
+
+            // ================= FORGOT PASSWORD =================
+            .addCase(forgotPassword.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(forgotPassword.fulfilled, (state) => {
+                state.loading = false;
+            })
+            .addCase(forgotPassword.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload?.message;
+            })
+
+            // ================= REFRESH TOKEN =================
+            .addCase(refreshAuthToken.fulfilled, (state, action) => {
+                state.user = action.payload;
+                state.isAuthenticated = true;
+            })
+
+            // ================= RESEND VERIFICATION =================
+            .addCase(resendVerification.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(resendVerification.fulfilled, (state) => {
+                state.loading = false;
+            })
+            .addCase(resendVerification.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload?.message;
+            })
+
+            // ================= DELETE USER =================
+            .addCase(deleteUser.fulfilled, (state) => {
+                state.user = null;
+                state.isAuthenticated = false;
+                state.loading = false;
+                state.error = null;
             });
     },
 });

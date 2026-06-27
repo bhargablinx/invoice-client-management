@@ -14,6 +14,7 @@ export const getCurrentUser = () => api.get("/auth/me");
 
 export const getAuthToken = () => api.post("/auth/refresh-token");
 
-export const resendVerification = () => api.post("/auth/resend-email");
+export const resendVerification = (data) =>
+    api.post("/auth/resend-email", data);
 
 export const deleteUser = () => api.delete("/auth/delete");
