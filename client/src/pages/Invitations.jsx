@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Building2, Calendar, Mail, UserRound } from "lucide-react";
+import { Building2, Calendar, Clock3, Mail, UserRound } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -57,6 +57,25 @@ const Invitations = () => {
     const declineInvitation = (id) => {
         setInvitations((prev) => prev.filter((invite) => invite.id !== id));
     };
+
+    return (
+        <div className="flex min-h-[400px] w-full items-center justify-center rounded-xl border border-dashed bg-muted/30 p-8">
+            <div className="flex max-w-md flex-col items-center text-center">
+                <div className="mb-5 rounded-full bg-primary/10 p-4 text-primary">
+                    <Clock3 className="h-10 w-10" />
+                </div>
+
+                <h2 className="text-2xl font-semibold tracking-tight">
+                    Coming Soon
+                </h2>
+
+                <p className="mt-2 text-sm text-muted-foreground">
+                    We're working on this feature. It will be available in a
+                    future update.
+                </p>
+            </div>
+        </div>
+    );
 
     return (
         <div className="space-y-6">
