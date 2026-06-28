@@ -16,6 +16,7 @@ import ManageInvoices from "./pages/ManageInvoices";
 import CreateInvoice from "./pages/CreateInvoice";
 import InvoiceDetails from "./pages/InvoiceDetails";
 import Payments from "./pages/Payments";
+import PaymentDetails from "./pages/PaymentDetails";
 import InvitationResponse from "./pages/InvitationResponse";
 import CreateOrganization from "./pages/CreateOrganization";
 import NotFound from "./pages/NotFound";
@@ -116,6 +117,10 @@ function App() {
                 {
                     path: "payments",
                     element: <Payments />,
+                },
+                {
+                    path: "payments/:paymentId",
+                    element: <PaymentDetails />,
                 },
                 {
                     path: "invitations/:token",

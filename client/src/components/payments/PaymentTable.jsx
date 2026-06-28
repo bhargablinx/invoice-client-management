@@ -41,7 +41,7 @@ const getVariant = (status) => {
     }
 };
 
-const PaymentTable = ({ payments }) => {
+const PaymentTable = ({ payments, onView, onDownloadReceipt, onDelete }) => {
     return (
         <Card>
             <CardHeader>
@@ -102,8 +102,12 @@ const PaymentTable = ({ payments }) => {
                                             </DropdownMenuTrigger>
 
                                             <DropdownMenuContent align="end">
-                                                <DropdownMenuItem>
-                                                    View Payment
+                                                <DropdownMenuItem
+                                                    onSelect={() =>
+                                                        onView?.(payment)
+                                                    }
+                                                >
+                                                    View Payment Details
                                                 </DropdownMenuItem>
 
                                                 <DropdownMenuItem>
@@ -112,13 +116,24 @@ const PaymentTable = ({ payments }) => {
 
                                                 <DropdownMenuSeparator />
 
-                                                <DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    onSelect={() =>
+                                                        onDownloadReceipt?.(
+                                                            payment,
+                                                        )
+                                                    }
+                                                >
                                                     Download Receipt
                                                 </DropdownMenuItem>
 
                                                 <DropdownMenuSeparator />
 
-                                                <DropdownMenuItem className="text-destructive">
+                                                <DropdownMenuItem
+                                                    className="text-destructive"
+                                                    onSelect={() =>
+                                                        onDelete?.(payment)
+                                                    }
+                                                >
                                                     Delete Payment
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 import Loading from "@/components/Loading";
 import PaymentHeader from "@/components/payments/PaymentHeader";
@@ -8,10 +8,14 @@ import PaymentStats from "@/components/payments/PaymentStats";
 import PaymentTable from "@/components/payments/PaymentTable";
 import RecordPaymentCard from "@/components/payments/RecordPaymentCard";
 import { getInvoices } from "@/features/invoices/invoiceThunk";
-import { getOrganizationPayments } from "@/features/payments/paymentThunk";
+import {
+    deletePayment,
+    getOrganizationPayments,
+} from "@/features/payments/paymentThunk";
 
 const Payments = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { organizations, loading: orgLoading } = useSelector(
         (state) => state.organization,
     );
@@ -60,6 +64,7 @@ const Payments = () => {
             },
             payments: list.map((payment) => ({
                 id: payment._id,
+                invoiceId: payment.invoice?._id,
                 invoice: payment.invoice?.invoiceNumber || "-",
                 client:
                     payment.invoice?.client?.companyName ||
@@ -69,10 +74,43 @@ const Payments = () => {
                 amount: formatAmount(payment.amount),
                 method: formatPaymentMethod(payment.paymentMethod),
                 status: formatPaymentStatus(payment),
+                raw: payment,
             })),
             preview: list[0] || null,
         };
     }, [payments]);
+
+    const handleDeletePayment = async (payment) => {
+        if (!payment.invoiceId) return;
+        if (!window.confirm("Delete this payment?")) return;
+
+        await dispatch(
+            deletePayment({
+                organizationId: activeOrganization._id,
+                invoiceId: payment.invoiceId,
+                paymentId: payment.id,
+            }),
+        ).unwrap();
+
+        dispatch(
+            getOrganizationPayments({
+                organizationId: activeOrganization._id,
+                params: { limit: 100 },
+            }),
+        );
+    };
+
+    const handleDownloadReceipt = (payment) => {
+        const blob = new Blob([buildReceipt(payment)], {
+            type: "text/plain;charset=utf-8",
+        });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${payment.id}-receipt.txt`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+    };
 
     if (orgLoading || paymentLoading) return <Loading />;
 
@@ -88,7 +126,12 @@ const Payments = () => {
 
             <div className="grid gap-6 xl:grid-cols-3">
                 <div className="xl:col-span-2">
-                    <PaymentTable payments={paymentData.payments} />
+                    <PaymentTable
+                        payments={paymentData.payments}
+                        onView={(payment) => navigate(`/payments/${payment.id}`)}
+                        onDownloadReceipt={handleDownloadReceipt}
+                        onDelete={handleDeletePayment}
+                    />
                 </div>
 
                 <RecordPaymentCard
@@ -137,3 +180,15 @@ const formatPaymentStatus = (payment) => {
     if (!payment) return "Pending";
     return "Completed";
 };
+
+const buildReceipt = (payment) =>
+    [
+        "InvoiceFlow Payment Receipt",
+        `Payment ID: ${payment.id}`,
+        `Invoice: ${payment.invoice}`,
+        `Client: ${payment.client}`,
+        `Date: ${payment.date}`,
+        `Method: ${payment.method}`,
+        `Amount: ${payment.amount}`,
+        `Status: ${payment.status}`,
+    ].join("\n");
