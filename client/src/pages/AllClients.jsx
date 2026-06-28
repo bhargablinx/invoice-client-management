@@ -102,7 +102,10 @@ const AllClients = () => {
                 <OutstandingPayments invoices={recentInvoices} />
             </div>
 
-            <RecentClients clients={clients} />
+            <div className="grid gap-6 lg:grid-cols-2">
+                <ClientGrowthChart data={monthlyRevenue} />
+                <RecentClients clients={clients} />
+            </div>
         </div>
     );
 };

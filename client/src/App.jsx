@@ -15,6 +15,7 @@ import ViewInvoices from "./pages/ViewInvoices";
 import ManageInvoices from "./pages/ManageInvoices";
 import CreateInvoice from "./pages/CreateInvoice";
 import Payments from "./pages/Payments";
+import InvitationResponse from "./pages/InvitationResponse";
 import CreateOrganization from "./pages/CreateOrganization";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
@@ -106,6 +107,10 @@ function App() {
                 {
                     path: "payments",
                     element: <Payments />,
+                },
+                {
+                    path: "invitations/:token",
+                    element: <InvitationResponse />,
                 },
             ],
         },
