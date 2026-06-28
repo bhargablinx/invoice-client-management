@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 
@@ -13,11 +13,34 @@ const Invitations = () => {
     );
     const activeOrganization = organizations[0];
     const { invitations } = useSelector((state) => state.organization);
+    const [localInvitations, setLocalInvitations] = useState([]);
 
     useEffect(() => {
         if (!activeOrganization?._id) return;
         dispatch(getOrganizationInvitations(activeOrganization._id));
     }, [activeOrganization?._id, dispatch]);
+
+    useEffect(() => {
+        setLocalInvitations(invitations);
+    }, [invitations]);
+
+    const handleResendInvitation = (invite) => {
+        if (!invite) return;
+        window.alert(
+            `Resend invitation for ${invite.email} is not connected to the backend yet.`,
+        );
+    };
+
+    const handleCancelInvitation = (invite) => {
+        if (!invite) return;
+        if (!window.confirm(`Cancel the invitation sent to ${invite.email}?`)) {
+            return;
+        }
+
+        setLocalInvitations((current) =>
+            current.filter((item) => item._id !== invite._id),
+        );
+    };
 
     if (orgLoading) return <Loading />;
 
@@ -41,7 +64,11 @@ const Invitations = () => {
                 </p>
             </div>
 
-            <PendingInvitations invitations={invitations} />
+            <PendingInvitations
+                invitations={localInvitations}
+                onResendInvitation={handleResendInvitation}
+                onCancelInvitation={handleCancelInvitation}
+            />
         </div>
     );
 };

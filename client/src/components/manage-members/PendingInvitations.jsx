@@ -27,7 +27,11 @@ const formatDate = (date) => {
     });
 };
 
-const PendingInvitations = ({ invitations = [] }) => {
+const PendingInvitations = ({
+    invitations = [],
+    onResendInvitation,
+    onCancelInvitation,
+}) => {
     return (
         <Card>
             <CardHeader>
@@ -81,13 +85,22 @@ const PendingInvitations = ({ invitations = [] }) => {
                                 </DropdownMenuTrigger>
 
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onSelect={() =>
+                                            onResendInvitation?.(invite)
+                                        }
+                                    >
                                         Resend Invitation
                                     </DropdownMenuItem>
 
                                     <DropdownMenuSeparator />
 
-                                    <DropdownMenuItem className="text-destructive">
+                                    <DropdownMenuItem
+                                        className="text-destructive"
+                                        onSelect={() =>
+                                            onCancelInvitation?.(invite)
+                                        }
+                                    >
                                         Cancel Invitation
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>

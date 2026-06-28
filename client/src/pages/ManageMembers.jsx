@@ -93,6 +93,24 @@ const ManageMembers = () => {
         };
     }, [invitations.length, members]);
 
+    const handleResendInvitation = (invite) => {
+        if (!invite) return;
+        window.alert(
+            `Resend invitation for ${invite.email} is not connected to the backend yet.`,
+        );
+    };
+
+    const handleCancelInvitation = (invite) => {
+        if (!invite) return;
+        if (!window.confirm(`Cancel the invitation sent to ${invite.email}?`)) {
+            return;
+        }
+
+        setInvitations((current) =>
+            current.filter((item) => item._id !== invite._id),
+        );
+    };
+
     if (orgLoading || loading) return <Loading />;
 
     if (!activeOrganization) {
@@ -135,7 +153,11 @@ const ManageMembers = () => {
                     </div>
                 ) : null}
 
-                <PendingInvitations invitations={invitations} />
+                <PendingInvitations
+                    invitations={invitations}
+                    onResendInvitation={handleResendInvitation}
+                    onCancelInvitation={handleCancelInvitation}
+                />
             </div>
         </>
     );
