@@ -6,7 +6,17 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 
-const RevenueChart = () => {
+const RevenueChart = ({ data }) => {
+    const values = data.map((item) => item.revenue);
+    const maxValue = Math.max(...values, 1);
+    const points = data.map((item, index) => {
+        const x = 20 + (index * 560) / Math.max(data.length - 1, 1);
+        const y = 180 - (item.revenue / maxValue) * 140;
+        return [x, y];
+    });
+    const polyline = points.map(([x, y]) => `${x},${y}`).join(" ");
+    const area = `${polyline} 580,180 20,180`;
+
     return (
         <Card className="h-full">
             <CardHeader>
@@ -23,21 +33,12 @@ const RevenueChart = () => {
                         className="h-full w-full"
                         preserveAspectRatio="none"
                     >
+                        <polygon className="fill-primary/10" points={area} />
                         <polyline
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="4"
-                            points="
-                                20,180
-                                90,140
-                                160,150
-                                230,90
-                                300,120
-                                370,60
-                                440,90
-                                510,40
-                                580,70
-                            "
+                            points={polyline}
                             className="text-primary"
                         />
 
@@ -61,12 +62,9 @@ const RevenueChart = () => {
                     </svg>
 
                     <div className="mt-4 flex justify-between text-sm text-muted-foreground">
-                        <span>Jan</span>
-                        <span>Feb</span>
-                        <span>Mar</span>
-                        <span>Apr</span>
-                        <span>May</span>
-                        <span>Jun</span>
+                        {data.map((item) => (
+                            <span key={item.month}>{item.month}</span>
+                        ))}
                     </div>
                 </div>
             </CardContent>

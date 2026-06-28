@@ -17,33 +17,6 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 
-const invoices = [
-    {
-        id: "INV-1001",
-        client: "Acme Corp",
-        amount: "₹18,500",
-        status: "Paid",
-    },
-    {
-        id: "INV-1002",
-        client: "John Doe",
-        amount: "₹7,200",
-        status: "Pending",
-    },
-    {
-        id: "INV-1003",
-        client: "ABC Pvt Ltd",
-        amount: "₹12,900",
-        status: "Overdue",
-    },
-    {
-        id: "INV-1004",
-        client: "Pixel Studio",
-        amount: "₹4,600",
-        status: "Paid",
-    },
-];
-
 const getVariant = (status) => {
     switch (status) {
         case "Paid":
@@ -57,7 +30,7 @@ const getVariant = (status) => {
     }
 };
 
-const RecentInvoices = () => {
+const RecentInvoices = ({ invoices }) => {
     return (
         <Card>
             <CardHeader>

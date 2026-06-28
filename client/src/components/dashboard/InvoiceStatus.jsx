@@ -8,25 +8,7 @@ import {
 
 import { Progress } from "@/components/ui/progress";
 
-const invoices = [
-    {
-        status: "Paid",
-        value: 78,
-        color: "bg-green-500",
-    },
-    {
-        status: "Pending",
-        value: 14,
-        color: "bg-yellow-500",
-    },
-    {
-        status: "Overdue",
-        value: 8,
-        color: "bg-red-500",
-    },
-];
-
-const InvoiceStatus = () => {
+const InvoiceStatus = ({ statusItems }) => {
     return (
         <Card className="h-full">
             <CardHeader>
@@ -35,13 +17,11 @@ const InvoiceStatus = () => {
             </CardHeader>
 
             <CardContent className="space-y-6">
-                {invoices.map((invoice) => (
+                {statusItems.map((invoice) => (
                     <div key={invoice.status} className="space-y-2">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <div
-                                    className={`size-3 rounded-full ${invoice.color}`}
-                                />
+                                <div className={`size-3 rounded-full ${invoice.color}`} />
                                 <span className="font-medium">
                                     {invoice.status}
                                 </span>

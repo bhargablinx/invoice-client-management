@@ -8,37 +8,12 @@ import {
 
 import { Progress } from "@/components/ui/progress";
 
-const services = [
-    {
-        name: "Website Development",
-        revenue: "₹1,24,000",
-        progress: 82,
-    },
-    {
-        name: "UI/UX Design",
-        revenue: "₹74,500",
-        progress: 60,
-    },
-    {
-        name: "Consultation",
-        revenue: "₹38,000",
-        progress: 42,
-    },
-    {
-        name: "Maintenance",
-        revenue: "₹19,500",
-        progress: 24,
-    },
-];
-
-const TopServices = () => {
+const TopServices = ({ services }) => {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Top Services</CardTitle>
-                <CardDescription>
-                    Best performing services this month
-                </CardDescription>
+                <CardTitle>Services</CardTitle>
+                <CardDescription>Active services from your catalog</CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-6">

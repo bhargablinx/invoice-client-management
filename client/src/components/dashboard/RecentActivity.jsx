@@ -8,30 +8,14 @@ import {
 
 import { CheckCircle2, FilePlus2, UserPlus, BellRing } from "lucide-react";
 
-const activities = [
-    {
-        icon: CheckCircle2,
-        title: "Invoice INV-1001 marked as paid",
-        time: "5 minutes ago",
-    },
-    {
-        icon: UserPlus,
-        title: "New client 'Pixel Studio' added",
-        time: "32 minutes ago",
-    },
-    {
-        icon: FilePlus2,
-        title: "Invoice INV-1005 created",
-        time: "1 hour ago",
-    },
-    {
-        icon: BellRing,
-        title: "Payment reminder sent to John Doe",
-        time: "3 hours ago",
-    },
-];
+const iconMap = {
+    invoice: FilePlus2,
+    paid: CheckCircle2,
+    client: UserPlus,
+    reminder: BellRing,
+};
 
-const RecentActivity = () => {
+const RecentActivity = ({ activities }) => {
     return (
         <Card>
             <CardHeader>
@@ -43,7 +27,7 @@ const RecentActivity = () => {
 
             <CardContent className="space-y-5">
                 {activities.map((activity, index) => {
-                    const Icon = activity.icon;
+                    const Icon = iconMap[activity.icon] ?? BellRing;
 
                     return (
                         <div key={index} className="flex items-start gap-4">

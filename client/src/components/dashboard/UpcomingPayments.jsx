@@ -8,25 +8,7 @@ import {
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-const payments = [
-    {
-        client: "Acme Corp",
-        due: "Tomorrow",
-        amount: "₹18,500",
-    },
-    {
-        client: "John Doe",
-        due: "In 2 Days",
-        amount: "₹7,200",
-    },
-    {
-        client: "Pixel Studio",
-        due: "In 5 Days",
-        amount: "₹12,000",
-    },
-];
-
-const UpcomingPayments = () => {
+const UpcomingPayments = ({ payments }) => {
     return (
         <Card>
             <CardHeader>
