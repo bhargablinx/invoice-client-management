@@ -14,6 +14,7 @@ import ManageClients from "./pages/ManageClients";
 import ViewInvoices from "./pages/ViewInvoices";
 import ManageInvoices from "./pages/ManageInvoices";
 import CreateInvoice from "./pages/CreateInvoice";
+import InvoiceDetails from "./pages/InvoiceDetails";
 import Payments from "./pages/Payments";
 import InvitationResponse from "./pages/InvitationResponse";
 import CreateOrganization from "./pages/CreateOrganization";
@@ -102,6 +103,14 @@ function App() {
                 },
                 {
                     path: "invoices/new",
+                    element: <CreateInvoice />,
+                },
+                {
+                    path: "invoices/:invoiceId",
+                    element: <InvoiceDetails />,
+                },
+                {
+                    path: "invoices/:invoiceId/edit",
                     element: <CreateInvoice />,
                 },
                 {

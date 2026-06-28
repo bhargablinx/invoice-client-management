@@ -43,7 +43,16 @@ const badgeVariant = (status) => {
     }
 };
 
-const InvoiceTable = ({ invoices }) => {
+const InvoiceTable = ({
+    invoices,
+    onView,
+    onEdit,
+    onDuplicate,
+    onDownloadPdf,
+    onSend,
+    onMarkAsPaid,
+    onDelete,
+}) => {
     return (
         <Card>
             <CardHeader>
@@ -125,37 +134,70 @@ const InvoiceTable = ({ invoices }) => {
                                                 </DropdownMenuTrigger>
 
                                                 <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        onSelect={() =>
+                                                            onView?.(invoice._id)
+                                                        }
+                                                    >
                                                         View Invoice
                                                     </DropdownMenuItem>
 
-                                                    <DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        onSelect={() =>
+                                                            onEdit?.(invoice._id)
+                                                        }
+                                                    >
                                                         Edit Invoice
                                                     </DropdownMenuItem>
 
-                                                    <DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        onSelect={() =>
+                                                            onDuplicate?.(invoice._id)
+                                                        }
+                                                    >
                                                         Duplicate Invoice
                                                     </DropdownMenuItem>
 
                                                     <DropdownMenuSeparator />
 
-                                                    <DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        onSelect={() =>
+                                                            onDownloadPdf?.(
+                                                                invoice._id,
+                                                            )
+                                                        }
+                                                    >
                                                         Download PDF
                                                     </DropdownMenuItem>
 
-                                                    <DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        onSelect={() =>
+                                                            onSend?.(invoice._id)
+                                                        }
+                                                    >
                                                         Send Invoice
                                                     </DropdownMenuItem>
 
                                                     {status !== "Paid" && (
-                                                        <DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            onSelect={() =>
+                                                                onMarkAsPaid?.(
+                                                                    invoice._id,
+                                                                )
+                                                            }
+                                                        >
                                                             Mark as Paid
                                                         </DropdownMenuItem>
                                                     )}
 
                                                     <DropdownMenuSeparator />
 
-                                                    <DropdownMenuItem className="text-destructive">
+                                                    <DropdownMenuItem
+                                                        className="text-destructive"
+                                                        onSelect={() =>
+                                                            onDelete?.(invoice._id)
+                                                        }
+                                                    >
                                                         Delete Invoice
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>

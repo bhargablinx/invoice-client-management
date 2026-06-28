@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Plus, Trash2 } from "lucide-react";
 
 import Loading from "@/components/Loading";
@@ -16,12 +16,17 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { createInvoice } from "@/features/invoices/invoiceThunk";
+import {
+    createInvoice,
+    getInvoice,
+    updateInvoice,
+} from "@/features/invoices/invoiceThunk";
 import { getClients } from "@/features/clients/clientThunk";
 
 const CreateInvoice = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { invoiceId } = useParams();
     const { organizations, loading: orgLoading } = useSelector(
         (state) => state.organization,
     );
@@ -38,6 +43,7 @@ const CreateInvoice = () => {
         notes: "",
         items: [createItem()],
     });
+    const isEditMode = Boolean(invoiceId);
 
     useEffect(() => {
         if (!activeOrganization?._id) return;
@@ -49,6 +55,48 @@ const CreateInvoice = () => {
             }),
         );
     }, [activeOrganization?._id, dispatch]);
+
+    useEffect(() => {
+        if (!activeOrganization?._id || !invoiceId) return;
+
+        const loadInvoice = async () => {
+            try {
+                const response = await dispatch(
+                    getInvoice({
+                        organizationId: activeOrganization._id,
+                        invoiceId,
+                    }),
+                ).unwrap();
+
+                const invoice = response?.invoice;
+                const items = response?.items ?? [];
+
+                setForm({
+                    clientId: invoice?.client?._id || invoice?.client || "",
+                    dueDate: invoice?.dueDate
+                        ? new Date(invoice.dueDate).toISOString().slice(0, 10)
+                        : "",
+                    currency: invoice?.currency || "INR",
+                    taxAmount: String(invoice?.taxAmount ?? 0),
+                    discountAmount: String(invoice?.discountAmount ?? 0),
+                    notes: "",
+                    items: items.length
+                        ? items.map((item) => ({
+                              description: item.description || "",
+                              quantity: String(item.quantity ?? 1),
+                              unitPrice: String(item.unitPrice ?? 0),
+                              taxRate: String(item.taxRate ?? 0),
+                              discountAmount: String(item.discountAmount ?? 0),
+                          }))
+                        : [createItem()],
+                });
+            } catch (err) {
+                setError(err?.message || "Failed to load invoice");
+            }
+        };
+
+        loadInvoice();
+    }, [activeOrganization?._id, dispatch, invoiceId]);
 
     const clientOptions = useMemo(
         () =>
@@ -130,25 +178,37 @@ const CreateInvoice = () => {
         setSubmitting(true);
 
         try {
-            await dispatch(
-                createInvoice({
-                    organizationId: activeOrganization._id,
-                    data: {
-                        clientId: form.clientId,
-                        dueDate: form.dueDate,
-                        currency: form.currency,
-                        taxAmount: Number(form.taxAmount || 0),
-                        discountAmount: Number(form.discountAmount || 0),
-                        items: validItems.map((item) => ({
-                            description: item.description,
-                            quantity: Number(item.quantity),
-                            unitPrice: Number(item.unitPrice),
-                            taxRate: Number(item.taxRate || 0),
-                            discountAmount: Number(item.discountAmount || 0),
-                        })),
-                    },
-                }),
-            ).unwrap();
+            const payload = {
+                clientId: form.clientId,
+                dueDate: form.dueDate,
+                currency: form.currency,
+                taxAmount: Number(form.taxAmount || 0),
+                discountAmount: Number(form.discountAmount || 0),
+                items: validItems.map((item) => ({
+                    description: item.description,
+                    quantity: Number(item.quantity),
+                    unitPrice: Number(item.unitPrice),
+                    taxRate: Number(item.taxRate || 0),
+                    discountAmount: Number(item.discountAmount || 0),
+                })),
+            };
+
+            if (isEditMode) {
+                await dispatch(
+                    updateInvoice({
+                        organizationId: activeOrganization._id,
+                        invoiceId,
+                        data: payload,
+                    }),
+                ).unwrap();
+            } else {
+                await dispatch(
+                    createInvoice({
+                        organizationId: activeOrganization._id,
+                        data: payload,
+                    }),
+                ).unwrap();
+            }
 
             navigate("/invoices/manage");
         } catch (err) {
@@ -168,9 +228,11 @@ const CreateInvoice = () => {
         <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Create Invoice</h1>
+                    <h1 className="text-3xl font-bold tracking-tight">
+                        {isEditMode ? "Edit Invoice" : "Create Invoice"}
+                    </h1>
                     <p className="text-muted-foreground">
-                        Build a new invoice for{" "}
+                        {isEditMode ? "Update invoice for" : "Build a new invoice for"}{" "}
                         <span className="font-medium text-foreground">
                             {activeOrganization.name}
                         </span>
@@ -179,7 +241,13 @@ const CreateInvoice = () => {
                 </div>
 
                 <Button type="submit" disabled={submitting}>
-                    {submitting ? "Creating..." : "Save Invoice"}
+                    {submitting
+                        ? isEditMode
+                            ? "Saving..."
+                            : "Creating..."
+                        : isEditMode
+                          ? "Save Changes"
+                          : "Save Invoice"}
                 </Button>
             </div>
 

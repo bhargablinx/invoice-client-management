@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 import InvoiceFilters from "@/components/manage-invoices/InvoiceFilters";
 import InvoiceHeader from "@/components/manage-invoices/InvoiceHeader";
@@ -8,10 +8,19 @@ import InvoiceStats from "@/components/manage-invoices/InvoiceStats";
 import InvoiceTable from "@/components/manage-invoices/InvoiceTable";
 import DraftInvoices from "@/components/manage-invoices/DraftInvoices";
 import Loading from "@/components/Loading";
-import { getInvoices } from "@/features/invoices/invoiceThunk";
+import {
+    createInvoice,
+    deleteInvoice,
+    generateInvoicePdf,
+    getInvoice,
+    getInvoices,
+    sendInvoice,
+    updateInvoiceStatus,
+} from "@/features/invoices/invoiceThunk";
 
 const ManageInvoices = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { organizations, loading: orgLoading } = useSelector(
         (state) => state.organization,
     );
@@ -111,6 +120,106 @@ const ManageInvoices = () => {
         };
     }, [invoices]);
 
+    const refreshInvoices = async () => {
+        await dispatch(
+            getInvoices({
+                organizationId: activeOrganization._id,
+                params: { limit: 100 },
+            }),
+        );
+    };
+
+    const handleViewInvoice = (invoiceId) => {
+        navigate(`/invoices/${invoiceId}`);
+    };
+
+    const handleEditInvoice = (invoiceId) => {
+        navigate(`/invoices/${invoiceId}/edit`);
+    };
+
+    const handleDuplicateInvoice = async (invoiceId) => {
+        const response = await dispatch(
+            getInvoice({
+                organizationId: activeOrganization._id,
+                invoiceId,
+            }),
+        ).unwrap();
+
+        const invoice = response?.invoice;
+        const items = response?.items ?? [];
+
+        await dispatch(
+            createInvoice({
+                organizationId: activeOrganization._id,
+                data: {
+                    clientId: invoice?.client?._id || invoice?.client,
+                    dueDate: invoice?.dueDate,
+                    currency: invoice?.currency || "INR",
+                    taxAmount: invoice?.taxAmount || 0,
+                    discountAmount: invoice?.discountAmount || 0,
+                    items: items.map((item) => ({
+                        description: item.description,
+                        quantity: item.quantity,
+                        unitPrice: item.unitPrice,
+                        taxRate: item.taxRate || 0,
+                        discountAmount: item.discountAmount || 0,
+                    })),
+                },
+            }),
+        ).unwrap();
+
+        await refreshInvoices();
+    };
+
+    const handleDownloadPdf = async (invoiceId) => {
+        const blob = await dispatch(
+            generateInvoicePdf({
+                organizationId: activeOrganization._id,
+                invoiceId,
+            }),
+        ).unwrap();
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${invoiceId}.pdf`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+    };
+
+    const handleSendInvoice = async (invoiceId) => {
+        await dispatch(
+            sendInvoice({
+                organizationId: activeOrganization._id,
+                invoiceId,
+                data: {},
+            }),
+        ).unwrap();
+        await refreshInvoices();
+    };
+
+    const handleMarkAsPaid = async (invoiceId) => {
+        await dispatch(
+            updateInvoiceStatus({
+                organizationId: activeOrganization._id,
+                invoiceId,
+                data: { status: "paid" },
+            }),
+        ).unwrap();
+        await refreshInvoices();
+    };
+
+    const handleDeleteInvoice = async (invoiceId) => {
+        if (!window.confirm("Delete this invoice?")) return;
+        await dispatch(
+            deleteInvoice({
+                organizationId: activeOrganization._id,
+                invoiceId,
+            }),
+        ).unwrap();
+        await refreshInvoices();
+    };
+
     if (orgLoading || invoiceLoading) return <Loading />;
 
     if (!activeOrganization) {
@@ -129,7 +238,16 @@ const ManageInvoices = () => {
                 clientOptions={clientOptions}
             />
 
-            <InvoiceTable invoices={tableData} />
+            <InvoiceTable
+                invoices={tableData}
+                onView={handleViewInvoice}
+                onEdit={handleEditInvoice}
+                onDuplicate={handleDuplicateInvoice}
+                onDownloadPdf={handleDownloadPdf}
+                onSend={handleSendInvoice}
+                onMarkAsPaid={handleMarkAsPaid}
+                onDelete={handleDeleteInvoice}
+            />
 
             <DraftInvoices invoices={invoices} />
         </div>
