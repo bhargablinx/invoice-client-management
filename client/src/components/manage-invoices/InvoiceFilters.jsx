@@ -10,18 +10,36 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 
-const InvoiceFilters = () => {
+const InvoiceFilters = ({ filters, onFiltersChange, clientOptions }) => {
     return (
         <div className="flex flex-col gap-4 xl:flex-row">
             <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 
-                <Input placeholder="Search invoices..." className="pl-10" />
+                <Input
+                    placeholder="Search invoices..."
+                    className="pl-10"
+                    value={filters.search}
+                    onChange={(e) =>
+                        onFiltersChange((current) => ({
+                            ...current,
+                            search: e.target.value,
+                        }))
+                    }
+                />
             </div>
 
-            <Select defaultValue="all">
+            <Select
+                value={filters.status}
+                onValueChange={(value) =>
+                    onFiltersChange((current) => ({
+                        ...current,
+                        status: value,
+                    }))
+                }
+            >
                 <SelectTrigger className="w-full xl:w-44">
-                    <SelectValue />
+                    <SelectValue placeholder="All Status" />
                 </SelectTrigger>
 
                 <SelectContent>
@@ -39,25 +57,40 @@ const InvoiceFilters = () => {
                 </SelectContent>
             </Select>
 
-            <Select defaultValue="all">
+            <Select
+                value={filters.clientId}
+                onValueChange={(value) =>
+                    onFiltersChange((current) => ({
+                        ...current,
+                        clientId: value,
+                    }))
+                }
+            >
                 <SelectTrigger className="w-full xl:w-48">
-                    <SelectValue />
+                    <SelectValue placeholder="All Clients" />
                 </SelectTrigger>
 
                 <SelectContent>
                     <SelectItem value="all">All Clients</SelectItem>
-
-                    <SelectItem value="acme">Acme Corporation</SelectItem>
-
-                    <SelectItem value="pixel">Pixel Studio</SelectItem>
-
-                    <SelectItem value="nova">Nova Digital</SelectItem>
+                    {clientOptions.map((client) => (
+                        <SelectItem key={client.id} value={client.id}>
+                            {client.label}
+                        </SelectItem>
+                    ))}
                 </SelectContent>
             </Select>
 
-            <Select defaultValue="latest">
+            <Select
+                value={filters.sort}
+                onValueChange={(value) =>
+                    onFiltersChange((current) => ({
+                        ...current,
+                        sort: value,
+                    }))
+                }
+            >
                 <SelectTrigger className="w-full xl:w-44">
-                    <SelectValue />
+                    <SelectValue placeholder="Latest" />
                 </SelectTrigger>
 
                 <SelectContent>

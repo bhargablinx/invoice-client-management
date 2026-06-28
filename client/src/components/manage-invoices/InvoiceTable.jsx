@@ -28,41 +28,6 @@ import {
     TableRow,
 } from "@/components/ui/table";
 
-const invoices = [
-    {
-        id: "INV-1001",
-        client: "Acme Corporation",
-        issueDate: "12 Jun 2026",
-        dueDate: "26 Jun 2026",
-        amount: "₹72,000",
-        status: "Paid",
-    },
-    {
-        id: "INV-1002",
-        client: "John Doe",
-        issueDate: "15 Jun 2026",
-        dueDate: "29 Jun 2026",
-        amount: "₹18,500",
-        status: "Pending",
-    },
-    {
-        id: "INV-1003",
-        client: "Pixel Studio",
-        issueDate: "10 Jun 2026",
-        dueDate: "20 Jun 2026",
-        amount: "₹9,400",
-        status: "Overdue",
-    },
-    {
-        id: "INV-1004",
-        client: "Nova Digital",
-        issueDate: "18 Jun 2026",
-        dueDate: "02 Jul 2026",
-        amount: "₹32,000",
-        status: "Draft",
-    },
-];
-
 const badgeVariant = (status) => {
     switch (status) {
         case "Paid":
@@ -78,7 +43,7 @@ const badgeVariant = (status) => {
     }
 };
 
-const InvoiceTable = () => {
+const InvoiceTable = ({ invoices }) => {
     return (
         <Card>
             <CardHeader>
@@ -110,77 +75,102 @@ const InvoiceTable = () => {
                     </TableHeader>
 
                     <TableBody>
-                        {invoices.map((invoice) => (
-                            <TableRow key={invoice.id}>
-                                <TableCell className="font-medium">
-                                    {invoice.id}
-                                </TableCell>
+                        {invoices.length ? (
+                            invoices.map((invoice) => {
+                                const status = capitalizeStatus(invoice.status);
 
-                                <TableCell>{invoice.client}</TableCell>
+                                return (
+                                    <TableRow key={invoice._id}>
+                                        <TableCell className="font-medium">
+                                            {invoice.invoiceNumber}
+                                        </TableCell>
 
-                                <TableCell>{invoice.issueDate}</TableCell>
+                                        <TableCell>
+                                            {invoice.client?.companyName ||
+                                                invoice.client?.name ||
+                                                "Unknown Client"}
+                                        </TableCell>
 
-                                <TableCell>{invoice.dueDate}</TableCell>
-
-                                <TableCell className="text-right font-medium">
-                                    {invoice.amount}
-                                </TableCell>
-
-                                <TableCell>
-                                    <Badge
-                                        variant={badgeVariant(invoice.status)}
-                                    >
-                                        {invoice.status}
-                                    </Badge>
-                                </TableCell>
-
-                                <TableCell>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon">
-                                                <MoreHorizontal className="size-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem>
-                                                View Invoice
-                                            </DropdownMenuItem>
-
-                                            <DropdownMenuItem>
-                                                Edit Invoice
-                                            </DropdownMenuItem>
-
-                                            <DropdownMenuItem>
-                                                Duplicate Invoice
-                                            </DropdownMenuItem>
-
-                                            <DropdownMenuSeparator />
-
-                                            <DropdownMenuItem>
-                                                Download PDF
-                                            </DropdownMenuItem>
-
-                                            <DropdownMenuItem>
-                                                Send Invoice
-                                            </DropdownMenuItem>
-
-                                            {invoice.status !== "Paid" && (
-                                                <DropdownMenuItem>
-                                                    Mark as Paid
-                                                </DropdownMenuItem>
+                                        <TableCell>
+                                            {formatDate(
+                                                invoice.issueDate || invoice.createdAt,
                                             )}
+                                        </TableCell>
 
-                                            <DropdownMenuSeparator />
+                                        <TableCell>
+                                            {formatDate(invoice.dueDate)}
+                                        </TableCell>
 
-                                            <DropdownMenuItem className="text-destructive">
-                                                Delete Invoice
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
+                                        <TableCell className="text-right font-medium">
+                                            {formatAmount(invoice.totalAmount)}
+                                        </TableCell>
+
+                                        <TableCell>
+                                            <Badge
+                                                variant={badgeVariant(status)}
+                                            >
+                                                {status}
+                                            </Badge>
+                                        </TableCell>
+
+                                        <TableCell>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                    >
+                                                        <MoreHorizontal className="size-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem>
+                                                        View Invoice
+                                                    </DropdownMenuItem>
+
+                                                    <DropdownMenuItem>
+                                                        Edit Invoice
+                                                    </DropdownMenuItem>
+
+                                                    <DropdownMenuItem>
+                                                        Duplicate Invoice
+                                                    </DropdownMenuItem>
+
+                                                    <DropdownMenuSeparator />
+
+                                                    <DropdownMenuItem>
+                                                        Download PDF
+                                                    </DropdownMenuItem>
+
+                                                    <DropdownMenuItem>
+                                                        Send Invoice
+                                                    </DropdownMenuItem>
+
+                                                    {status !== "Paid" && (
+                                                        <DropdownMenuItem>
+                                                            Mark as Paid
+                                                        </DropdownMenuItem>
+                                                    )}
+
+                                                    <DropdownMenuSeparator />
+
+                                                    <DropdownMenuItem className="text-destructive">
+                                                        Delete Invoice
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={7} className="py-10 text-center text-muted-foreground">
+                                    No invoices found.
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        )}
                     </TableBody>
                 </Table>
             </CardContent>
@@ -189,3 +179,26 @@ const InvoiceTable = () => {
 };
 
 export default InvoiceTable;
+
+const capitalizeStatus = (status) =>
+    (status || "Unknown")
+        .replaceAll("_", " ")
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+
+const formatAmount = (amount) =>
+    new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0,
+    }).format(amount || 0);
+
+const formatDate = (date) =>
+    date
+        ? new Intl.DateTimeFormat("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+          }).format(new Date(date))
+        : "-";
