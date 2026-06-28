@@ -5,6 +5,7 @@ import Invoice from "../models/invoice.model.js";
 import Payment from "../models/payment.model.js";
 import mongoose from "mongoose";
 import recalculateInvoicePaymentStatus from "../utils/recalculatePayment.js";
+import Client from "../models/client.model.js";
 
 const createPayment = asyncHandler(async (req, res) => {
     const { organizationId, invoiceId } = req.params;
@@ -213,4 +214,107 @@ const deletePayment = asyncHandler(async (req, res) => {
     }
 });
 
-export { createPayment, getPayments, getPayment, updatePayment, deletePayment };
+const getOrganizationPayments = asyncHandler(async (req, res) => {
+    const { organizationId } = req.params;
+
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.max(1, Number(req.query.limit) || 10);
+    const skip = (page - 1) * limit;
+    const { status, search } = req.query;
+
+    const filter = {
+        organization: organizationId,
+    };
+
+    if (status) {
+        if (status === "completed") {
+            filter.amount = { $gt: 0 };
+        }
+    }
+
+    const [payments, totalPayments, amountSummary] = await Promise.all([
+        Payment.find(filter)
+            .populate({
+                path: "invoice",
+                select: "invoiceNumber client totalAmount amountPaid balanceDue status dueDate issueDate",
+                populate: {
+                    path: "client",
+                    select: "name companyName email",
+                },
+            })
+            .populate("receivedBy", "name email")
+            .sort({ paymentDate: -1, createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+        Payment.countDocuments(filter),
+        Payment.aggregate([
+            { $match: { organization: new mongoose.Types.ObjectId(organizationId) } },
+            {
+                $group: {
+                    _id: null,
+                    totalPayments: { $sum: 1 },
+                    totalAmount: { $sum: "$amount" },
+                },
+            },
+        ]),
+    ]);
+
+    const normalizedSearch = (search || "").trim().toLowerCase();
+    const filteredPayments = normalizedSearch
+        ? payments.filter((payment) => {
+              const invoiceNumber = payment.invoice?.invoiceNumber || "";
+              const clientName =
+                  payment.invoice?.client?.companyName ||
+                  payment.invoice?.client?.name ||
+                  "";
+              const referenceNumber = payment.referenceNumber || "";
+
+              return (
+                  invoiceNumber.toLowerCase().includes(normalizedSearch) ||
+                  clientName.toLowerCase().includes(normalizedSearch) ||
+                  referenceNumber.toLowerCase().includes(normalizedSearch)
+              );
+          })
+        : payments;
+
+    const completed = filteredPayments.filter((payment) =>
+        ["cash", "bank_transfer", "upi", "credit_card", "debit_card", "cheque", "other"].includes(
+            payment.paymentMethod,
+        ),
+    ).length;
+
+    const summary = amountSummary[0] || {};
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                payments: filteredPayments,
+                pagination: {
+                    page,
+                    limit,
+                    totalPayments,
+                    totalPages: Math.ceil(totalPayments / limit),
+                },
+                summary: {
+                    totalPayments: summary.totalPayments || 0,
+                    totalAmount: summary.totalAmount || 0,
+                    completedPayments: completed,
+                    pendingPayments: 0,
+                    failedPayments: 0,
+                },
+            },
+            "Payments fetched successfully"
+        )
+    );
+});
+
+export {
+    createPayment,
+    getPayments,
+    getPayment,
+    updatePayment,
+    deletePayment,
+    getOrganizationPayments,
+};

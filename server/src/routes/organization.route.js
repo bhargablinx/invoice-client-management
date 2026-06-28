@@ -38,6 +38,7 @@ import {
 } from "../controllers/invoice.controller.js";
 import {
     createPayment,
+    getOrganizationPayments,
     getPayments,
     getPayment,
     updatePayment,
@@ -150,6 +151,10 @@ router
 router
     .route("/:organizationId/invoices/:invoiceId/send")
     .post(verifyJWT, authorizeRoles("owner", "admin", "member"), sendInvoice);
+
+router
+    .route("/:organizationId/payments")
+    .get(verifyJWT, authorizeRoles("owner", "admin", "member"), getOrganizationPayments);
 
 // PAYMENT MANAGEMENT
 router
