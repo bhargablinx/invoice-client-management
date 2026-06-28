@@ -99,7 +99,6 @@ const ManageClients = () => {
     const stats = useMemo(() => {
         const activeClients = clients.filter((client) => client.isActive);
         const archivedClients = clients.filter((client) => !client.isActive);
-        console.log(clients);
 
         return {
             total: clients.length,
