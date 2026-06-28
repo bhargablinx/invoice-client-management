@@ -110,33 +110,33 @@ const data = {
             hasChild: false,
         },
 
-        {
-            title: "Services",
-            url: "/services",
-            icon: <HandPlatter />,
-            hasChild: false,
-        },
+        // {
+        //     title: "Services",
+        //     url: "/services",
+        //     icon: <HandPlatter />,
+        //     hasChild: false,
+        // },
 
-        {
-            title: "Reports",
-            url: "/reports",
-            icon: <BarChart3 />,
-            items: [
-                {
-                    title: "Revenue Report",
-                    url: "/reports/revenue",
-                },
-                {
-                    title: "Invoice Report",
-                    url: "/reports/invoices",
-                },
-                {
-                    title: "Client Report",
-                    url: "/reports/clients",
-                },
-            ],
-            hasChild: true,
-        },
+        // {
+        //     title: "Reports",
+        //     url: "/reports",
+        //     icon: <BarChart3 />,
+        //     items: [
+        //         {
+        //             title: "Revenue Report",
+        //             url: "/reports/revenue",
+        //         },
+        //         {
+        //             title: "Invoice Report",
+        //             url: "/reports/invoices",
+        //         },
+        //         {
+        //             title: "Client Report",
+        //             url: "/reports/clients",
+        //         },
+        //     ],
+        //     hasChild: true,
+        // },
 
         {
             title: "Settings",
