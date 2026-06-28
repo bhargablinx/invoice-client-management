@@ -3,33 +3,31 @@ import { Users, UserCheck, Archive, IndianRupee } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const stats = [
-    {
-        title: "Total Clients",
-        value: "48",
-        icon: Users,
-    },
-    {
-        title: "Active Clients",
-        value: "44",
-        icon: UserCheck,
-    },
-    {
-        title: "Archived",
-        value: "4",
-        icon: Archive,
-    },
-    {
-        title: "Revenue",
-        value: "₹12.84L",
-        icon: IndianRupee,
-    },
+    { title: "Total Clients", key: "total", icon: Users },
+    { title: "Active Clients", key: "active", icon: UserCheck },
+    { title: "Archived", key: "archived", icon: Archive },
+    { title: "Revenue", key: "revenue", icon: IndianRupee },
 ];
 
-const ClientStats = () => {
+const formatRevenue = (value) => {
+    const amount = Number(value ?? 0);
+
+    return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0,
+    }).format(amount);
+};
+
+const ClientStats = ({ stats: clientStats = {} }) => {
     return (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {stats.map((stat) => {
                 const Icon = stat.icon;
+                const value =
+                    stat.key === "revenue"
+                        ? formatRevenue(clientStats[stat.key] ?? 0)
+                        : clientStats[stat.key] ?? 0;
 
                 return (
                     <Card key={stat.title}>
@@ -42,9 +40,7 @@ const ClientStats = () => {
                         </CardHeader>
 
                         <CardContent>
-                            <div className="text-3xl font-bold">
-                                {stat.value}
-                            </div>
+                            <div className="text-3xl font-bold">{value}</div>
                         </CardContent>
                     </Card>
                 );

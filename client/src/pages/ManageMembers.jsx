@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 
@@ -29,7 +29,7 @@ const ManageMembers = () => {
     const [search, setSearch] = useState("");
     const [role, setRole] = useState("all");
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         if (!activeOrganization?._id) return;
 
         try {
@@ -58,11 +58,11 @@ const ManageMembers = () => {
             setInvitations([]);
             setInvitationError(err?.message ?? "Failed to load invitations");
         }
-    };
+    }, [activeOrganization?._id, dispatch]);
 
     useEffect(() => {
         fetchData();
-    }, [activeOrganization?._id]);
+    }, [fetchData]);
 
     const filteredMembers = useMemo(() => {
         return members.filter((member) => {

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import {
     Dialog,
@@ -8,21 +9,25 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { createClient } from "@/features/clients/clientThunk";
 
-const AddClientDialog = ({ open, onOpenChange }) => {
+const AddClientDialog = ({ open, onOpenChange, onCreated }) => {
+    const dispatch = useDispatch();
+    const { organizations } = useSelector((state) => state.organization);
+    const activeOrganization = organizations[0];
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState("");
     const [form, setForm] = useState({
         name: "",
-        company: "",
+        companyName: "",
         email: "",
         phone: "",
-        gst: "",
+        taxId: "",
         address: "",
-        notes: "",
     });
 
     const handleChange = (field, value) => {
@@ -30,6 +35,50 @@ const AddClientDialog = ({ open, onOpenChange }) => {
             ...prev,
             [field]: value,
         }));
+    };
+
+    useEffect(() => {
+        if (!open) {
+            setForm({
+                name: "",
+                companyName: "",
+                email: "",
+                phone: "",
+                taxId: "",
+                address: "",
+            });
+            setSubmitting(false);
+            setError("");
+        }
+    }, [open]);
+
+    const handleCreate = async () => {
+        if (!activeOrganization?._id) {
+            setError("No active organization selected");
+            return;
+        }
+
+        try {
+            setSubmitting(true);
+            setError("");
+
+            await dispatch(
+                createClient({
+                    organizationId: activeOrganization._id,
+                    data: {
+                        organizationId: activeOrganization._id,
+                        ...form,
+                    },
+                }),
+            ).unwrap();
+
+            await onCreated?.();
+            onOpenChange(false);
+        } catch (err) {
+            setError(err?.message ?? "Failed to create client");
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
@@ -59,9 +108,9 @@ const AddClientDialog = ({ open, onOpenChange }) => {
                         <Label>Company</Label>
 
                         <Input
-                            value={form.company}
+                            value={form.companyName}
                             onChange={(e) =>
-                                handleChange("company", e.target.value)
+                                handleChange("companyName", e.target.value)
                             }
                         />
                     </div>
@@ -95,10 +144,8 @@ const AddClientDialog = ({ open, onOpenChange }) => {
                         <Label>GST Number</Label>
 
                         <Input
-                            value={form.gst}
-                            onChange={(e) =>
-                                handleChange("gst", e.target.value)
-                            }
+                            value={form.taxId}
+                            onChange={(e) => handleChange("taxId", e.target.value)}
                         />
                     </div>
 
@@ -113,29 +160,29 @@ const AddClientDialog = ({ open, onOpenChange }) => {
                             }
                         />
                     </div>
-
-                    <div className="space-y-2">
-                        <Label>Notes</Label>
-
-                        <Textarea
-                            rows={3}
-                            value={form.notes}
-                            onChange={(e) =>
-                                handleChange("notes", e.target.value)
-                            }
-                        />
-                    </div>
                 </div>
+
+                {error ? (
+                    <div className="rounded-md border border-dashed p-3 text-sm text-destructive">
+                        {error}
+                    </div>
+                ) : null}
 
                 <DialogFooter>
                     <Button
                         variant="outline"
                         onClick={() => onOpenChange(false)}
+                        disabled={submitting}
                     >
                         Cancel
                     </Button>
 
-                    <Button>Create Client</Button>
+                    <Button
+                        onClick={handleCreate}
+                        disabled={submitting || !form.name.trim()}
+                    >
+                        {submitting ? "Creating..." : "Create Client"}
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

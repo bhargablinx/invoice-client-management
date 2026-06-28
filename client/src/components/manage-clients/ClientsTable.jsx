@@ -3,7 +3,6 @@ import { MoreHorizontal } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
 import {
     Card,
     CardContent,
@@ -11,7 +10,6 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -19,7 +17,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 import {
     Table,
     TableBody,
@@ -28,58 +25,21 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { getInitials } from "@/lib/helper";
 
-const clients = [
-    {
-        id: 1,
-        name: "John Doe",
-        company: "Acme Corporation",
-        email: "john@acme.com",
-        phone: "+91 9876543210",
-        outstanding: "₹18,000",
-        status: "Active",
-    },
-    {
-        id: 2,
-        name: "Sarah Johnson",
-        company: "Pixel Studio",
-        email: "sarah@pixel.com",
-        phone: "+91 9123456780",
-        outstanding: "₹0",
-        status: "Active",
-    },
-    {
-        id: 3,
-        name: "Michael Brown",
-        company: "Nova Digital",
-        email: "michael@nova.com",
-        phone: "+91 9988776655",
-        outstanding: "₹7,800",
-        status: "Active",
-    },
-    {
-        id: 4,
-        name: "Emma Wilson",
-        company: "Freelancer",
-        email: "emma@gmail.com",
-        phone: "+91 9000011111",
-        outstanding: "₹2,400",
-        status: "Archived",
-    },
-];
+const statusVariant = (isActive) => (isActive ? "default" : "secondary");
 
-const statusVariant = (status) => {
-    switch (status) {
-        case "Active":
-            return "default";
-        case "Archived":
-            return "secondary";
-        default:
-            return "outline";
-    }
+const formatCurrency = (value) => {
+    const amount = Number(value ?? 0);
+
+    return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0,
+    }).format(amount);
 };
 
-const ClientsTable = () => {
+const ClientsTable = ({ clients = [] }) => {
     return (
         <Card>
             <CardHeader>
@@ -93,110 +53,124 @@ const ClientsTable = () => {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Client</TableHead>
-
                             <TableHead>Company</TableHead>
-
                             <TableHead>Email</TableHead>
-
                             <TableHead>Phone</TableHead>
-
                             <TableHead>Outstanding</TableHead>
-
                             <TableHead>Status</TableHead>
-
                             <TableHead className="w-14" />
                         </TableRow>
                     </TableHeader>
 
                     <TableBody>
-                        {clients.map((client) => (
-                            <TableRow key={client.id}>
-                                <TableCell>
-                                    <div className="flex items-center gap-3">
-                                        <Avatar>
-                                            <AvatarFallback>
-                                                {client.name
-                                                    .split(" ")
-                                                    .map((word) => word[0])
-                                                    .join("")}
-                                            </AvatarFallback>
-                                        </Avatar>
+                        {clients.length ? (
+                            clients.map((client) => (
+                                <TableRow key={client._id}>
+                                    <TableCell>
+                                        <div className="flex items-center gap-3">
+                                            <Avatar>
+                                                <AvatarFallback>
+                                                    {getInitials(client.name)}
+                                                </AvatarFallback>
+                                            </Avatar>
 
-                                        <div>
-                                            <p className="font-medium">
-                                                {client.name}
-                                            </p>
+                                            <div>
+                                                <p className="font-medium">
+                                                    {client.name}
+                                                </p>
 
-                                            <p className="text-sm text-muted-foreground">
-                                                Client
-                                            </p>
+                                                <p className="text-sm text-muted-foreground">
+                                                    Client
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
-                                </TableCell>
+                                    </TableCell>
 
-                                <TableCell>{client.company}</TableCell>
+                                    <TableCell>
+                                        {client.companyName ?? "—"}
+                                    </TableCell>
 
-                                <TableCell>{client.email}</TableCell>
+                                    <TableCell>{client.email ?? "—"}</TableCell>
 
-                                <TableCell>{client.phone}</TableCell>
+                                    <TableCell>{client.phone ?? "—"}</TableCell>
 
-                                <TableCell
-                                    className={
-                                        client.outstanding === "₹0"
-                                            ? "text-green-600 font-medium"
-                                            : "font-medium text-orange-600"
-                                    }
-                                >
-                                    {client.outstanding}
-                                </TableCell>
-
-                                <TableCell>
-                                    <Badge
-                                        variant={statusVariant(client.status)}
+                                    <TableCell
+                                        className={
+                                            Number(client.outstandingAmount ?? 0)
+                                                === 0
+                                                ? "text-green-600 font-medium"
+                                                : "font-medium text-orange-600"
+                                        }
                                     >
-                                        {client.status}
-                                    </Badge>
-                                </TableCell>
+                                        {formatCurrency(
+                                            client.outstandingAmount ?? 0,
+                                        )}
+                                    </TableCell>
 
-                                <TableCell>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon">
-                                                <MoreHorizontal className="size-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem>
-                                                View Client
-                                            </DropdownMenuItem>
-
-                                            <DropdownMenuItem>
-                                                Edit Client
-                                            </DropdownMenuItem>
-
-                                            <DropdownMenuSeparator />
-
-                                            {client.status === "Active" ? (
-                                                <DropdownMenuItem>
-                                                    Archive Client
-                                                </DropdownMenuItem>
-                                            ) : (
-                                                <DropdownMenuItem>
-                                                    Restore Client
-                                                </DropdownMenuItem>
+                                    <TableCell>
+                                        <Badge
+                                            variant={statusVariant(
+                                                client.isActive,
                                             )}
+                                        >
+                                            {client.isActive
+                                                ? "Active"
+                                                : "Archived"}
+                                        </Badge>
+                                    </TableCell>
 
-                                            <DropdownMenuSeparator />
+                                    <TableCell>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                >
+                                                    <MoreHorizontal className="size-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
 
-                                            <DropdownMenuItem className="text-destructive">
-                                                Delete Client
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem>
+                                                    View Client
+                                                </DropdownMenuItem>
+
+                                                <DropdownMenuItem>
+                                                    Edit Client
+                                                </DropdownMenuItem>
+
+                                                <DropdownMenuSeparator />
+
+                                                {client.isActive ? (
+                                                    <DropdownMenuItem>
+                                                        Archive Client
+                                                    </DropdownMenuItem>
+                                                ) : (
+                                                    <DropdownMenuItem>
+                                                        Restore Client
+                                                    </DropdownMenuItem>
+                                                )}
+
+                                                <DropdownMenuSeparator />
+
+                                                <DropdownMenuItem className="text-destructive">
+                                                    Delete Client
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell
+                                    colSpan={7}
+                                    className="py-12 text-center text-sm text-muted-foreground"
+                                >
+                                    No matching clients found.
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        )}
                     </TableBody>
                 </Table>
             </CardContent>
