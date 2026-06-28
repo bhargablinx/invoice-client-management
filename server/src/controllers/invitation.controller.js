@@ -69,34 +69,25 @@ const inviteUser = asyncHandler(async (req, res) => {
     await invitation.save({ validateBeforeSave: false });
 
     // Sending Mail
-    // const invitationUrl = `${process.env.CLIENT_URL}/invitations/${invitationToken}`;
-    // try {
-    //     await sendMail(
-    //         userToInvite.email,
-    //         `Invitation to join ${organization.name}`,
-    //         invitationTemplate(
-    //             organization.name,
-    //             invitation.role,
-    //             invitationUrl
-    //         )
-    //     );
-    // } catch (error) {
-    //     await Invitation.findByIdAndDelete(
-    //         invitation._id
-    //     );
+    const invitationUrl = `${process.env.CLIENT_URL}/invitations/${invitationToken}`;
+    try {
+        await sendMail(
+            userToInvite.email,
+            `Invitation to join ${organization.name}`,
+            invitationTemplate(
+                organization.name,
+                invitation.role,
+                invitationUrl
+            )
+        );
+    } catch (error) {
+        await Invitation.findByIdAndDelete(invitation._id);
 
-    //     throw new ApiError(
-    //         500,
-    //         "Invitation email could not be sent"
-    //     );
-    // }
+        throw new ApiError(500, "Invitation email could not be sent");
+    }
 
     res.status(201).json(
-        new ApiResponse(
-            201,
-            invitationToken,
-            "Mail is sent and user is invited!!"
-        )
+        new ApiResponse(201, null, "Mail is sent and user is invited!!")
     );
 });
 
