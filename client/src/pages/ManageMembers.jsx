@@ -29,44 +29,38 @@ const ManageMembers = () => {
     const [search, setSearch] = useState("");
     const [role, setRole] = useState("all");
 
+    const fetchData = async () => {
+        if (!activeOrganization?._id) return;
+
+        try {
+            setLoading(true);
+            setMemberError("");
+            setInvitationError("");
+
+            const membersRes = await dispatch(
+                getOrganizationMembers(activeOrganization._id),
+            ).unwrap();
+
+            setMembers(membersRes ?? []);
+        } catch (err) {
+            setMemberError(err?.message ?? "Failed to load member data");
+        } finally {
+            setLoading(false);
+        }
+
+        try {
+            const invitationsRes = await dispatch(
+                getOrganizationInvitations(activeOrganization._id),
+            ).unwrap();
+
+            setInvitations(invitationsRes ?? []);
+        } catch (err) {
+            setInvitations([]);
+            setInvitationError(err?.message ?? "Failed to load invitations");
+        }
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            if (!activeOrganization?._id) return;
-
-            try {
-                setLoading(true);
-                setMemberError("");
-                setInvitationError("");
-
-                const membersRes = await dispatch(
-                    getOrganizationMembers(activeOrganization._id),
-                ).unwrap();
-
-                setMembers(membersRes ?? []);
-            } catch (err) {
-                setMemberError(
-                    err?.message ??
-                        "Failed to load member data",
-                );
-            } finally {
-                setLoading(false);
-            }
-
-            try {
-                const invitationsRes = await dispatch(
-                    getOrganizationInvitations(activeOrganization._id),
-                ).unwrap();
-
-                setInvitations(invitationsRes ?? []);
-            } catch (err) {
-                setInvitations([]);
-                setInvitationError(
-                    err?.message ??
-                        "Failed to load invitations",
-                );
-            }
-        };
-
         fetchData();
     }, [activeOrganization?._id]);
 
@@ -111,6 +105,7 @@ const ManageMembers = () => {
                 <InviteMemberDialog
                     open={inviteDialogOpen}
                     onOpenChange={setInviteDialogOpen}
+                    onInvited={fetchData}
                 />
             </div>
 
