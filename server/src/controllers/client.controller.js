@@ -4,6 +4,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import Membership from "../models/membership.model.js";
 import Organization from "../models/organization.model.js";
 import Client from "../models/client.model.js";
+import Invoice from "../models/invoice.model.js";
 import mongoose from "mongoose";
 
 const createClient = asyncHandler(async (req, res) => {
@@ -88,7 +89,7 @@ const getClients = asyncHandler(async (req, res) => {
         ];
     }
 
-    const [clients, totalClients] = await Promise.all([
+    const [clients, totalClients, invoiceStats] = await Promise.all([
         Client.find(filter)
             .sort({ createdAt: -1 })
             .skip(skip)
@@ -96,13 +97,48 @@ const getClients = asyncHandler(async (req, res) => {
             .lean(),
 
         Client.countDocuments(filter),
+
+        Invoice.aggregate([
+            {
+                $match: {
+                    organization: new mongoose.Types.ObjectId(organizationId),
+                    status: { $ne: "cancelled" },
+                },
+            },
+            {
+                $group: {
+                    _id: "$client",
+                    totalRevenue: { $sum: "$totalAmount" },
+                    amountPaid: { $sum: "$amountPaid" },
+                    outstandingAmount: { $sum: "$balanceDue" },
+                    totalInvoices: { $sum: 1 },
+                },
+            },
+        ]),
     ]);
+
+    const statsByClientId = invoiceStats.reduce((acc, stat) => {
+        acc[String(stat._id)] = stat;
+        return acc;
+    }, {});
+
+    const enrichedClients = clients.map((client) => {
+        const stats = statsByClientId[String(client._id)] ?? {};
+
+        return {
+            ...client,
+            totalRevenue: stats.totalRevenue ?? 0,
+            amountPaid: stats.amountPaid ?? 0,
+            outstandingAmount: stats.outstandingAmount ?? 0,
+            totalInvoices: stats.totalInvoices ?? 0,
+        };
+    });
 
     return res.status(200).json(
         new ApiResponse(
             200,
             {
-                clients,
+                clients: enrichedClients,
                 pagination: {
                     page,
                     limit,
@@ -203,11 +239,60 @@ const deleteClient = asyncHandler(async (req, res) => {
 });
 
 const getClientInvoices = asyncHandler(async (req, res) => {
-    res.status(200).json(new ApiResponse(200, null, "Server is running!!"));
+    const { organizationId, clientId } = req.params;
+
+    const invoices = await Invoice.find({
+        organization: organizationId,
+        client: clientId,
+    })
+        .sort({ createdAt: -1 })
+        .lean();
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                invoices,
+                "Client invoices fetched successfully"
+            )
+        );
 });
 
 const getClientStats = asyncHandler(async (req, res) => {
-    res.status(200).json(new ApiResponse(200, null, "Server is running!!"));
+    const { organizationId, clientId } = req.params;
+
+    const [stats] = await Invoice.aggregate([
+        {
+            $match: {
+                organization: new mongoose.Types.ObjectId(organizationId),
+                client: new mongoose.Types.ObjectId(clientId),
+                status: { $ne: "cancelled" },
+            },
+        },
+        {
+            $group: {
+                _id: "$client",
+                totalInvoices: { $sum: 1 },
+                totalRevenue: { $sum: "$totalAmount" },
+                amountPaid: { $sum: "$amountPaid" },
+                outstandingAmount: { $sum: "$balanceDue" },
+            },
+        },
+    ]);
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            stats ?? {
+                totalInvoices: 0,
+                totalRevenue: 0,
+                amountPaid: 0,
+                outstandingAmount: 0,
+            },
+            "Client stats fetched successfully"
+        )
+    );
 });
 
 export {
