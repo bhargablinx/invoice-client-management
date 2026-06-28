@@ -12,7 +12,7 @@ export const createClient = createAsyncThunk(
                 organizationId,
                 data,
             );
-            return response.data;
+            return response.data.data;
         } catch (error) {
             return thunkAPI.rejectWithValue(getErrorMessage(error));
         }
