@@ -6,9 +6,19 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 
-const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+const RevenueChart = ({ monthlyRevenue }) => {
+    const months = monthlyRevenue.map((item) => item.month);
+    const values = monthlyRevenue.map((item) => item.amount);
+    const maxValue = Math.max(...values, 1);
 
-const RevenueChart = () => {
+    const points = monthlyRevenue.map((item, index) => {
+        const x = 20 + (index * 560) / Math.max(monthlyRevenue.length - 1, 1);
+        const y = 200 - (item.amount / maxValue) * 160;
+        return [x, y];
+    });
+
+    const areaPoints = `${points.map(([x, y]) => `${x},${y}`).join(" ")} 580,200 20,200`;
+
     return (
         <Card className="h-full">
             <CardHeader>
@@ -62,21 +72,7 @@ const RevenueChart = () => {
 
                         {/* Area */}
 
-                        <polygon
-                            className="fill-primary/10"
-                            points="
-                            20,180
-                            100,160
-                            180,140
-                            260,150
-                            340,110
-                            420,90
-                            500,60
-                            580,40
-                            580,200
-                            20,200
-                        "
-                        />
+                        <polygon className="fill-primary/10" points={areaPoints} />
 
                         {/* Revenue Line */}
 
@@ -85,30 +81,12 @@ const RevenueChart = () => {
                             stroke="currentColor"
                             strokeWidth="4"
                             className="text-primary"
-                            points="
-                            20,180
-                            100,160
-                            180,140
-                            260,150
-                            340,110
-                            420,90
-                            500,60
-                            580,40
-                        "
+                            points={points.map(([x, y]) => `${x},${y}`).join(" ")}
                         />
 
                         {/* Data Points */}
 
-                        {[
-                            [20, 180],
-                            [100, 160],
-                            [180, 140],
-                            [260, 150],
-                            [340, 110],
-                            [420, 90],
-                            [500, 60],
-                            [580, 40],
-                        ].map(([x, y], i) => (
+                        {points.map(([x, y], i) => (
                             <circle
                                 key={i}
                                 cx={x}
@@ -126,17 +104,23 @@ const RevenueChart = () => {
                     </div>
 
                     <div className="mt-2 grid grid-cols-6 text-center text-xs font-medium">
-                        <span>₹1.2L</span>
-                        <span>₹1.8L</span>
-                        <span>₹2.1L</span>
-                        <span>₹2.0L</span>
-                        <span>₹2.6L</span>
-                        <span>₹3.1L</span>
+                        {values.map((value, index) => (
+                            <span key={`${months[index]}-${value}`}>
+                                {formatAmount(value)}
+                            </span>
+                        ))}
                     </div>
                 </div>
             </CardContent>
         </Card>
     );
 };
+
+const formatAmount = (value) =>
+    new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0,
+    }).format(value);
 
 export default RevenueChart;

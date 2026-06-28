@@ -8,33 +8,6 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 
-const invoices = [
-    {
-        id: "INV-1024",
-        client: "Acme Corporation",
-        amount: "₹72,000",
-        status: "Paid",
-    },
-    {
-        id: "INV-1025",
-        client: "John Doe",
-        amount: "₹18,500",
-        status: "Pending",
-    },
-    {
-        id: "INV-1026",
-        client: "Pixel Studio",
-        amount: "₹9,400",
-        status: "Overdue",
-    },
-    {
-        id: "INV-1027",
-        client: "Nova Digital",
-        amount: "₹32,000",
-        status: "Paid",
-    },
-];
-
 const getVariant = (status) => {
     switch (status) {
         case "Paid":
@@ -48,7 +21,7 @@ const getVariant = (status) => {
     }
 };
 
-const RecentInvoices = () => {
+const RecentInvoices = ({ invoices }) => {
     return (
         <Card>
             <CardHeader>

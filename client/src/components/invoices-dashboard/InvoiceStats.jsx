@@ -2,33 +2,33 @@ import { FileText, IndianRupee, Clock3, AlertTriangle } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const stats = [
-    {
-        title: "Total Invoices",
-        value: "284",
-        icon: FileText,
-    },
-    {
-        title: "Paid Amount",
-        value: "₹12.84L",
-        icon: IndianRupee,
-    },
-    {
-        title: "Pending Amount",
-        value: "₹2.14L",
-        icon: Clock3,
-    },
-    {
-        title: "Overdue Amount",
-        value: "₹48,500",
-        icon: AlertTriangle,
-    },
-];
+const InvoiceStats = ({ stats }) => {
+    const cards = [
+        {
+            title: "Total Invoices",
+            value: stats.totalInvoices,
+            icon: FileText,
+        },
+        {
+            title: "Paid Amount",
+            value: stats.paidAmount,
+            icon: IndianRupee,
+        },
+        {
+            title: "Pending Amount",
+            value: stats.pendingAmount,
+            icon: Clock3,
+        },
+        {
+            title: "Overdue Amount",
+            value: stats.overdueAmount,
+            icon: AlertTriangle,
+        },
+    ];
 
-const InvoiceStats = () => {
     return (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {stats.map((stat) => {
+            {cards.map((stat) => {
                 const Icon = stat.icon;
 
                 return (

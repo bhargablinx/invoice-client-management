@@ -1,8 +1,4 @@
-import { Plus } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-
-const InvoiceHeader = () => {
+const InvoiceHeader = ({ organizationName }) => {
     return (
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
@@ -10,6 +6,18 @@ const InvoiceHeader = () => {
 
                 <p className="text-muted-foreground">
                     Monitor invoice performance, payments, and billing activity.
+                    {organizationName ? (
+                        <>
+                            {" "}
+                            for{" "}
+                            <span className="font-medium text-foreground">
+                                {organizationName}
+                            </span>
+                            .
+                        </>
+                    ) : (
+                        "."
+                    )}
                 </p>
             </div>
         </div>

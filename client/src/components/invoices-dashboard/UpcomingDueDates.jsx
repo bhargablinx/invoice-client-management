@@ -10,31 +10,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 
-const dueInvoices = [
-    {
-        id: "INV-1028",
-        client: "Bright Solutions",
-        due: "Tomorrow",
-        amount: "₹18,000",
-        status: "Upcoming",
-    },
-    {
-        id: "INV-1029",
-        client: "Acme Corporation",
-        due: "2 Days",
-        amount: "₹42,500",
-        status: "Upcoming",
-    },
-    {
-        id: "INV-1030",
-        client: "John Doe",
-        due: "Overdue by 3 Days",
-        amount: "₹7,400",
-        status: "Overdue",
-    },
-];
-
-const UpcomingDueDates = () => {
+const UpcomingDueDates = ({ invoices }) => {
     return (
         <Card>
             <CardHeader>
@@ -44,7 +20,7 @@ const UpcomingDueDates = () => {
             </CardHeader>
 
             <CardContent className="space-y-5">
-                {dueInvoices.map((invoice) => (
+                {invoices.map((invoice) => (
                     <div
                         key={invoice.id}
                         className="flex items-center justify-between"
