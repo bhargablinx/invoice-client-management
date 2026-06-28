@@ -222,7 +222,7 @@ const getRecentInvoices = asyncHandler(async (req, res) => {
     const invoices = await Invoice.find({
         organization: organizationId,
     })
-        .populate("client", "name company")
+        .populate("client", "name companyName")
         .sort({ createdAt: -1 })
         .limit(5)
         .select(
@@ -297,7 +297,7 @@ const getTopClients = asyncHandler(async (req, res) => {
 
                 name: "$client.name",
 
-                company: "$client.company",
+                company: "$client.companyName",
 
                 totalRevenue: 1,
 
