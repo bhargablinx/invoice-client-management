@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
 
 import InviteMemberDialog from "@/components/manage-members/InviteMemberDialog";
 import MemberFilters from "@/components/manage-members/MemberFilters";
@@ -6,9 +8,102 @@ import MembersHeader from "@/components/manage-members/MembersHeader";
 import MemberStats from "@/components/manage-members/MemberStats";
 import MembersTable from "@/components/manage-members/MembersTable";
 import PendingInvitations from "@/components/manage-members/PendingInvitations";
+import Loading from "@/components/Loading";
+import {
+    getOrganizationMembers,
+    getOrganizationInvitations,
+} from "@/features/organization/organizationThunk";
 
 const ManageMembers = () => {
+    const dispatch = useDispatch();
+    const { organizations, loading: orgLoading } = useSelector(
+        (state) => state.organization,
+    );
+    const activeOrganization = organizations[0];
     const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+    const [members, setMembers] = useState([]);
+    const [invitations, setInvitations] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [memberError, setMemberError] = useState("");
+    const [invitationError, setInvitationError] = useState("");
+    const [search, setSearch] = useState("");
+    const [role, setRole] = useState("all");
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!activeOrganization?._id) return;
+
+            try {
+                setLoading(true);
+                setMemberError("");
+                setInvitationError("");
+
+                const membersRes = await dispatch(
+                    getOrganizationMembers(activeOrganization._id),
+                ).unwrap();
+
+                setMembers(membersRes ?? []);
+            } catch (err) {
+                setMemberError(
+                    err?.message ??
+                        "Failed to load member data",
+                );
+            } finally {
+                setLoading(false);
+            }
+
+            try {
+                const invitationsRes = await dispatch(
+                    getOrganizationInvitations(activeOrganization._id),
+                ).unwrap();
+
+                setInvitations(invitationsRes ?? []);
+            } catch (err) {
+                setInvitations([]);
+                setInvitationError(
+                    err?.message ??
+                        "Failed to load invitations",
+                );
+            }
+        };
+
+        fetchData();
+    }, [activeOrganization?._id]);
+
+    const filteredMembers = useMemo(() => {
+        return members.filter((member) => {
+            const name = member.user?.name ?? "";
+            const email = member.user?.email ?? "";
+            const matchesSearch =
+                !search ||
+                name.toLowerCase().includes(search.toLowerCase()) ||
+                email.toLowerCase().includes(search.toLowerCase());
+            const matchesRole = role === "all" || member.role === role;
+
+            return matchesSearch && matchesRole;
+        });
+    }, [members, role, search]);
+
+    const stats = useMemo(() => {
+        const activeMembers = members.filter(
+            (member) => member.status === "active",
+        );
+
+        return {
+            total: activeMembers.length,
+            admins: activeMembers.filter((member) => member.role === "admin")
+                .length,
+            owners: activeMembers.filter((member) => member.role === "owner")
+                .length,
+            pendingInvites: invitations.length,
+        };
+    }, [invitations.length, members]);
+
+    if (orgLoading || loading) return <Loading />;
+
+    if (!activeOrganization) {
+        return <Navigate to="/organizations/new" replace />;
+    }
 
     return (
         <>
@@ -22,13 +117,30 @@ const ManageMembers = () => {
             <div className="space-y-6">
                 <MembersHeader onInvite={() => setInviteDialogOpen(true)} />
 
-                <MemberStats />
+                <MemberStats stats={stats} />
 
-                <MemberFilters />
+                <MemberFilters
+                    search={search}
+                    onSearchChange={setSearch}
+                    role={role}
+                    onRoleChange={setRole}
+                />
 
-                <MembersTable />
+                {memberError ? (
+                    <div className="rounded-lg border border-dashed p-6 text-sm text-destructive">
+                        {memberError}
+                    </div>
+                ) : (
+                    <MembersTable members={filteredMembers} />
+                )}
 
-                <PendingInvitations />
+                {invitationError && !memberError ? (
+                    <div className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+                        {invitationError}
+                    </div>
+                ) : null}
+
+                <PendingInvitations invitations={invitations} />
             </div>
         </>
     );

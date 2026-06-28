@@ -5,27 +5,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 const stats = [
     {
         title: "Total Members",
-        value: 18,
+        key: "total",
         icon: Users,
     },
     {
         title: "Admins",
-        value: 3,
+        key: "admins",
         icon: ShieldCheck,
     },
     {
         title: "Owners",
-        value: 1,
+        key: "owners",
         icon: Crown,
     },
     {
         title: "Pending Invites",
-        value: 4,
+        key: "pendingInvites",
         icon: Mail,
     },
 ];
 
-const MemberStats = () => {
+const MemberStats = ({ stats: memberStats = {} }) => {
     return (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {stats.map((stat) => {
@@ -43,7 +43,7 @@ const MemberStats = () => {
 
                         <CardContent>
                             <div className="text-3xl font-bold">
-                                {stat.value}
+                                {memberStats[stat.key] ?? 0}
                             </div>
                         </CardContent>
                     </Card>
