@@ -5,23 +5,20 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-
 import { Progress } from "@/components/ui/progress";
 
-const statuses = [
-    {
-        title: "Active Clients",
-        count: 44,
-        percentage: 91,
-    },
-    {
-        title: "Archived Clients",
-        count: 4,
-        percentage: 9,
-    },
-];
+const ClientStatus = ({
+    totalClients = 0,
+    activeClients = 0,
+    archivedClients = 0,
+}) => {
+    const activePercentage = totalClients
+        ? Math.round((activeClients / totalClients) * 100)
+        : 0;
+    const archivedPercentage = totalClients
+        ? Math.round((archivedClients / totalClients) * 100)
+        : 0;
 
-const ClientStatus = () => {
     return (
         <Card className="h-full">
             <CardHeader>
@@ -31,25 +28,41 @@ const ClientStatus = () => {
             </CardHeader>
 
             <CardContent className="space-y-8">
-                {statuses.map((status) => (
-                    <div key={status.title} className="space-y-3">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="font-medium">{status.title}</p>
+                <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="font-medium">Active Clients</p>
 
-                                <p className="text-sm text-muted-foreground">
-                                    {status.count} Clients
-                                </p>
-                            </div>
-
-                            <span className="text-lg font-semibold">
-                                {status.percentage}%
-                            </span>
+                            <p className="text-sm text-muted-foreground">
+                                {activeClients} Clients
+                            </p>
                         </div>
 
-                        <Progress value={status.percentage} />
+                        <span className="text-lg font-semibold">
+                            {activePercentage}%
+                        </span>
                     </div>
-                ))}
+
+                    <Progress value={activePercentage} />
+                </div>
+
+                <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="font-medium">Archived Clients</p>
+
+                            <p className="text-sm text-muted-foreground">
+                                {archivedClients} Clients
+                            </p>
+                        </div>
+
+                        <span className="text-lg font-semibold">
+                            {archivedPercentage}%
+                        </span>
+                    </div>
+
+                    <Progress value={archivedPercentage} />
+                </div>
 
                 <div className="rounded-lg bg-muted p-4">
                     <div className="flex items-center justify-between">
@@ -57,7 +70,9 @@ const ClientStatus = () => {
                             Total Clients
                         </span>
 
-                        <span className="text-2xl font-bold">48</span>
+                        <span className="text-2xl font-bold">
+                            {totalClients}
+                        </span>
                     </div>
                 </div>
             </CardContent>

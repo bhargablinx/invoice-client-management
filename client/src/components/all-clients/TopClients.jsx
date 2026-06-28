@@ -8,34 +8,14 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 
-const clients = [
-    {
-        id: 1,
-        name: "Acme Corporation",
-        revenue: "₹2,84,000",
-        invoices: 24,
-    },
-    {
-        id: 2,
-        name: "Pixel Studio",
-        revenue: "₹1,76,000",
-        invoices: 18,
-    },
-    {
-        id: 3,
-        name: "TechNova",
-        revenue: "₹98,000",
-        invoices: 12,
-    },
-    {
-        id: 4,
-        name: "John Doe",
-        revenue: "₹72,500",
-        invoices: 9,
-    },
-];
+const formatCurrency = (value) =>
+    new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0,
+    }).format(Number(value ?? 0));
 
-const TopClients = () => {
+const TopClients = ({ clients = [] }) => {
     return (
         <Card>
             <CardHeader>
@@ -47,29 +27,39 @@ const TopClients = () => {
             </CardHeader>
 
             <CardContent className="space-y-5">
-                {clients.map((client) => (
-                    <div
-                        key={client.id}
-                        className="flex items-center justify-between"
-                    >
-                        <div className="flex items-center gap-3">
-                            <div className="rounded-lg bg-primary/10 p-2">
-                                <Building2 className="size-5 text-primary" />
-                            </div>
+                {clients.length ? (
+                    clients.map((client) => (
+                        <div
+                            key={client.clientId ?? client._id}
+                            className="flex items-center justify-between"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="rounded-lg bg-primary/10 p-2">
+                                    <Building2 className="size-5 text-primary" />
+                                </div>
 
-                            <div>
-                                <p className="font-medium">{client.name}</p>
+                                <div>
+                                    <p className="font-medium">
+                                        {client.name}
+                                    </p>
 
-                                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                    <FileText className="size-3.5" />
-                                    {client.invoices} invoices
+                                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                        <FileText className="size-3.5" />
+                                        {client.totalInvoices ?? 0} invoices
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <p className="font-semibold">{client.revenue}</p>
+                            <p className="font-semibold">
+                                {formatCurrency(client.totalRevenue ?? 0)}
+                            </p>
+                        </div>
+                    ))
+                ) : (
+                    <div className="rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
+                        No top clients found.
                     </div>
-                ))}
+                )}
             </CardContent>
         </Card>
     );

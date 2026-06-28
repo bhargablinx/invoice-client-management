@@ -7,34 +7,20 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-
 import { Badge } from "@/components/ui/badge";
 
-const dues = [
-    {
-        id: 1,
-        client: "Acme Corporation",
-        amount: "₹18,000",
-        due: "Tomorrow",
-        status: "Upcoming",
-    },
-    {
-        id: 2,
-        client: "John Doe",
-        amount: "₹7,200",
-        due: "2 Days",
-        status: "Upcoming",
-    },
-    {
-        id: 3,
-        client: "ABC Pvt Ltd",
-        amount: "₹4,800",
-        due: "5 Days Overdue",
-        status: "Overdue",
-    },
-];
+const formatCurrency = (value) =>
+    new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0,
+    }).format(Number(value ?? 0));
 
-const OutstandingPayments = () => {
+const OutstandingPayments = ({ invoices = [] }) => {
+    const outstandingInvoices = invoices
+        .filter((invoice) => Number(invoice.balanceDue ?? 0) > 0)
+        .slice(0, 4);
+
     return (
         <Card>
             <CardHeader>
@@ -46,39 +32,58 @@ const OutstandingPayments = () => {
             </CardHeader>
 
             <CardContent className="space-y-5">
-                {dues.map((payment) => (
-                    <div
-                        key={payment.id}
-                        className="flex items-center justify-between"
-                    >
-                        <div>
-                            <p className="font-medium">{payment.client}</p>
+                {outstandingInvoices.length ? (
+                    outstandingInvoices.map((invoice) => (
+                        <div
+                            key={invoice._id}
+                            className="flex items-center justify-between"
+                        >
+                            <div>
+                                <p className="font-medium">
+                                    {invoice.client?.name ?? invoice.invoiceNumber}
+                                </p>
 
-                            <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-                                <CalendarClock className="size-3.5" />
-                                {payment.due}
+                                <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                                    <CalendarClock className="size-3.5" />
+                                    Due{" "}
+                                    {invoice.dueDate
+                                        ? new Date(
+                                              invoice.dueDate,
+                                          ).toLocaleDateString("en-US", {
+                                              day: "2-digit",
+                                              month: "short",
+                                              year: "numeric",
+                                          })
+                                        : "soon"}
+                                </div>
+                            </div>
+
+                            <div className="text-right">
+                                <p className="font-semibold">
+                                    {formatCurrency(invoice.balanceDue)}
+                                </p>
+
+                                <Badge
+                                    variant={
+                                        invoice.status === "overdue"
+                                            ? "destructive"
+                                            : "secondary"
+                                    }
+                                    className="mt-1"
+                                >
+                                    {invoice.status === "overdue" && (
+                                        <AlertCircle className="mr-1 size-3" />
+                                    )}
+                                    {invoice.status}
+                                </Badge>
                             </div>
                         </div>
-
-                        <div className="text-right">
-                            <p className="font-semibold">{payment.amount}</p>
-
-                            <Badge
-                                variant={
-                                    payment.status === "Overdue"
-                                        ? "destructive"
-                                        : "secondary"
-                                }
-                                className="mt-1"
-                            >
-                                {payment.status === "Overdue" && (
-                                    <AlertCircle className="mr-1 size-3" />
-                                )}
-                                {payment.status}
-                            </Badge>
-                        </div>
+                    ))
+                ) : (
+                    <div className="rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
+                        No outstanding invoices.
                     </div>
-                ))}
+                )}
             </CardContent>
         </Card>
     );

@@ -6,14 +6,32 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 
-const ClientGrowthChart = () => {
+const ClientGrowthChart = ({ data = [] }) => {
+    const points = [...data].slice(-6);
+    const values = points.map((item) => Number(item.revenue ?? 0));
+    const maxValue = Math.max(...values, 1);
+
+    const scaledPoints = values.map((value, index) => {
+        const x = points.length === 1 ? 20 : 20 + (560 * index) / (points.length - 1);
+        const y = 180 - (140 * value) / maxValue;
+        return [x, y];
+    });
+
+    const labels = points.map((item) => {
+        const month = item.month ?? 1;
+        const year = item.year ?? new Date().getFullYear();
+        return new Date(year, month - 1).toLocaleDateString("en-US", {
+            month: "short",
+        });
+    });
+
     return (
         <Card className="h-full">
             <CardHeader>
                 <CardTitle>Client Growth</CardTitle>
 
                 <CardDescription>
-                    New clients acquired over the last 6 months
+                    Monthly revenue trend from invoice data
                 </CardDescription>
             </CardHeader>
 
@@ -24,8 +42,6 @@ const ClientGrowthChart = () => {
                         className="h-72 w-full"
                         preserveAspectRatio="none"
                     >
-                        {/* X Axis */}
-
                         <line
                             x1="20"
                             y1="180"
@@ -34,9 +50,6 @@ const ClientGrowthChart = () => {
                             stroke="currentColor"
                             opacity=".15"
                         />
-
-                        {/* Y Axis */}
-
                         <line
                             x1="20"
                             y1="20"
@@ -46,74 +59,46 @@ const ClientGrowthChart = () => {
                             opacity=".15"
                         />
 
-                        {/* Area */}
+                        {scaledPoints.length > 1 && (
+                            <>
+                                <polygon
+                                    points={`20,180 ${scaledPoints
+                                        .map(([x, y]) => `${x},${y}`)
+                                        .join(" ")} 580,180`}
+                                    className="fill-primary/10"
+                                />
 
-                        <polygon
-                            points="
-                                20,180
-                                90,160
-                                160,145
-                                230,125
-                                300,110
-                                370,90
-                                440,75
-                                510,55
-                                580,40
-                                580,180
-                            "
-                            className="fill-primary/10"
-                        />
+                                <polyline
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                    className="text-primary"
+                                    points={scaledPoints
+                                        .map(([x, y]) => `${x},${y}`)
+                                        .join(" ")}
+                                />
 
-                        {/* Line */}
-
-                        <polyline
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                            className="text-primary"
-                            points="
-                                20,180
-                                90,160
-                                160,145
-                                230,125
-                                300,110
-                                370,90
-                                440,75
-                                510,55
-                                580,40
-                            "
-                        />
-
-                        {/* Points */}
-
-                        {[
-                            [20, 180],
-                            [90, 160],
-                            [160, 145],
-                            [230, 125],
-                            [300, 110],
-                            [370, 90],
-                            [440, 75],
-                            [510, 55],
-                            [580, 40],
-                        ].map(([x, y], index) => (
-                            <circle
-                                key={index}
-                                cx={x}
-                                cy={y}
-                                r="5"
-                                className="fill-primary"
-                            />
-                        ))}
+                                {scaledPoints.map(([x, y], index) => (
+                                    <circle
+                                        key={index}
+                                        cx={x}
+                                        cy={y}
+                                        r="5"
+                                        className="fill-primary"
+                                    />
+                                ))}
+                            </>
+                        )}
                     </svg>
 
                     <div className="mt-4 flex justify-between text-sm text-muted-foreground">
-                        <span>Jan</span>
-                        <span>Feb</span>
-                        <span>Mar</span>
-                        <span>Apr</span>
-                        <span>May</span>
-                        <span>Jun</span>
+                        {labels.length
+                            ? labels.map((label, index) => (
+                                  <span key={`${label}-${index}`}>{label}</span>
+                              ))
+                            : ["Jan", "Feb", "Mar", "Apr", "May", "Jun"].map(
+                                  (label) => <span key={label}>{label}</span>,
+                              )}
                     </div>
                 </div>
             </CardContent>
