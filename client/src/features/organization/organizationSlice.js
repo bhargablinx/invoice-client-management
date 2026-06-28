@@ -5,11 +5,13 @@ import {
     getMyOrganizations,
     updateOrganization,
     deleteOrganization,
+    getOrganizationInvitations,
 } from "./organizationThunk";
 
 const initialState = {
     organization: null,
     organizations: [],
+    invitations: [],
     loading: false,
     error: null,
 };
@@ -63,7 +65,10 @@ export const organizationSlice = createSlice({
                 state.loading = false;
                 state.organization = null;
             })
-            .addCase(deleteOrganization.rejected, rejected);
+            .addCase(deleteOrganization.rejected, rejected)
+            .addCase(getOrganizationInvitations.fulfilled, (state, action) => {
+                state.invitations = action.payload ?? [];
+            });
     },
 });
 
