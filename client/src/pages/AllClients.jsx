@@ -81,7 +81,12 @@ const AllClients = () => {
 
             <div className="grid gap-6 lg:grid-cols-3">
                 <div className="lg:col-span-2">
-                    <ClientGrowthChart data={monthlyRevenue} />
+                    {/* <ClientGrowthChart data={monthlyRevenue} /> */}
+                    <div className="flex h-full min-h-[300px] items-center justify-center">
+                        <span className="text-muted-foreground text-lg font-medium">
+                            Coming Soon
+                        </span>
+                    </div>
                 </div>
 
                 <ClientStatus
