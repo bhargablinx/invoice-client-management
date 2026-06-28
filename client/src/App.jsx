@@ -13,6 +13,7 @@ import AllClients from "./pages/AllClients";
 import ManageClients from "./pages/ManageClients";
 import ViewInvoices from "./pages/ViewInvoices";
 import ManageInvoices from "./pages/ManageInvoices";
+import CreateInvoice from "./pages/CreateInvoice";
 import Payments from "./pages/Payments";
 import CreateOrganization from "./pages/CreateOrganization";
 import NotFound from "./pages/NotFound";
@@ -97,6 +98,10 @@ function App() {
                 {
                     path: "invoices/manage",
                     element: <ManageInvoices />,
+                },
+                {
+                    path: "invoices/new",
+                    element: <CreateInvoice />,
                 },
                 {
                     path: "payments",
