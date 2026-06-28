@@ -2,33 +2,33 @@ import { CheckCircle2, Clock3, IndianRupee, XCircle } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const stats = [
-    {
-        title: "Total Payments",
-        value: "₹18.42L",
-        icon: IndianRupee,
-    },
-    {
-        title: "Completed",
-        value: "198",
-        icon: CheckCircle2,
-    },
-    {
-        title: "Pending",
-        value: "14",
-        icon: Clock3,
-    },
-    {
-        title: "Failed",
-        value: "3",
-        icon: XCircle,
-    },
-];
+const PaymentStats = ({ stats }) => {
+    const cards = [
+        {
+            title: "Total Payments",
+            value: stats.totalAmount,
+            icon: IndianRupee,
+        },
+        {
+            title: "Completed",
+            value: stats.completedPayments,
+            icon: CheckCircle2,
+        },
+        {
+            title: "Pending",
+            value: stats.pendingPayments,
+            icon: Clock3,
+        },
+        {
+            title: "Failed",
+            value: stats.failedPayments,
+            icon: XCircle,
+        },
+    ];
 
-const PaymentStats = () => {
     return (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {stats.map((stat) => {
+            {cards.map((stat) => {
                 const Icon = stat.icon;
 
                 return (

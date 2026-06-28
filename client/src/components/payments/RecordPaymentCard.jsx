@@ -20,7 +20,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 
-const RecordPaymentCard = () => {
+const RecordPaymentCard = ({ payment }) => {
     return (
         <Card className="sticky top-4">
             <CardHeader>
@@ -51,28 +51,32 @@ const RecordPaymentCard = () => {
 
                 <div className="rounded-lg border bg-muted/30 p-4">
                     <div className="space-y-1">
-                        <p className="font-medium">INV-1024</p>
+                        <p className="font-medium">
+                            {payment?.invoice?.invoiceNumber || "No invoice selected"}
+                        </p>
 
                         <p className="text-sm text-muted-foreground">
-                            Acme Corporation
+                            {payment?.invoice?.client?.companyName ||
+                                payment?.invoice?.client?.name ||
+                                "Search or load a payment"}
                         </p>
 
                         <div className="mt-3 flex justify-between text-sm">
                             <span>Total</span>
 
-                            <span>₹72,000</span>
+                            <span>{formatAmount(payment?.invoice?.totalAmount)}</span>
                         </div>
 
                         <div className="flex justify-between text-sm">
                             <span>Paid</span>
 
-                            <span>₹30,000</span>
+                            <span>{formatAmount(payment?.invoice?.amountPaid)}</span>
                         </div>
 
                         <div className="flex justify-between font-medium">
                             <span>Remaining</span>
 
-                            <span>₹42,000</span>
+                            <span>{formatAmount(payment?.invoice?.balanceDue)}</span>
                         </div>
                     </div>
                 </div>
@@ -132,3 +136,10 @@ const RecordPaymentCard = () => {
 };
 
 export default RecordPaymentCard;
+
+const formatAmount = (amount) =>
+    new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0,
+    }).format(amount || 0);

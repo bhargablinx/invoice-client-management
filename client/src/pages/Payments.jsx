@@ -1,24 +1,120 @@
+import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
+
+import Loading from "@/components/Loading";
 import PaymentHeader from "@/components/payments/PaymentHeader";
 import PaymentStats from "@/components/payments/PaymentStats";
 import PaymentTable from "@/components/payments/PaymentTable";
 import RecordPaymentCard from "@/components/payments/RecordPaymentCard";
+import { getOrganizationPayments } from "@/features/payments/paymentThunk";
 
 const Payments = () => {
+    const dispatch = useDispatch();
+    const { organizations, loading: orgLoading } = useSelector(
+        (state) => state.organization,
+    );
+    const activeOrganization = organizations[0];
+    const { payments, loading: paymentLoading } = useSelector(
+        (state) => state.payments,
+    );
+    const [filters] = useState({
+        search: "",
+    });
+
+    useEffect(() => {
+        if (!activeOrganization?._id) return;
+
+        dispatch(
+            getOrganizationPayments({
+                organizationId: activeOrganization._id,
+                params: { limit: 100, ...(filters.search ? { search: filters.search } : {}) },
+            }),
+        );
+    }, [activeOrganization?._id, dispatch, filters.search]);
+
+    const paymentData = useMemo(() => {
+        const list = payments ?? [];
+
+        const totalPayments = list.length;
+        const totalAmount = list.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+        const completedPayments = totalPayments;
+        const pendingPayments = 0;
+        const failedPayments = 0;
+
+        return {
+            stats: {
+                totalAmount: formatAmount(totalAmount),
+                totalPayments,
+                completedPayments,
+                pendingPayments,
+                failedPayments,
+            },
+            payments: list.map((payment) => ({
+                id: payment._id,
+                invoice: payment.invoice?.invoiceNumber || "-",
+                client:
+                    payment.invoice?.client?.companyName ||
+                    payment.invoice?.client?.name ||
+                    "Unknown Client",
+                date: formatDate(payment.paymentDate),
+                amount: formatAmount(payment.amount),
+                method: formatPaymentMethod(payment.paymentMethod),
+                status: formatPaymentStatus(payment),
+            })),
+            preview: list[0] || null,
+        };
+    }, [payments]);
+
+    if (orgLoading || paymentLoading) return <Loading />;
+
+    if (!activeOrganization) {
+        return <Navigate to="/organizations/new" replace />;
+    }
+
     return (
         <div className="space-y-6">
-            <PaymentHeader />
+            <PaymentHeader organizationName={activeOrganization.name} />
 
-            <PaymentStats />
+            <PaymentStats stats={paymentData.stats} />
 
             <div className="grid gap-6 xl:grid-cols-3">
                 <div className="xl:col-span-2">
-                    <PaymentTable />
+                    <PaymentTable payments={paymentData.payments} />
                 </div>
 
-                <RecordPaymentCard />
+                <RecordPaymentCard payment={paymentData.preview} />
             </div>
         </div>
     );
 };
 
 export default Payments;
+
+const formatAmount = (amount) =>
+    new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0,
+    }).format(amount || 0);
+
+const formatDate = (date) =>
+    date
+        ? new Intl.DateTimeFormat("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+          }).format(new Date(date))
+        : "-";
+
+const formatPaymentMethod = (method) =>
+    (method || "other")
+        .replaceAll("_", " ")
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+
+const formatPaymentStatus = (payment) => {
+    if (!payment) return "Pending";
+    return "Completed";
+};

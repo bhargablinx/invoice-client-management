@@ -84,3 +84,17 @@ export const deletePayment = createAsyncThunk(
     },
 );
 
+export const getOrganizationPayments = createAsyncThunk(
+    "payments/getOrganizationPayments",
+    async ({ organizationId, params }, thunkAPI) => {
+        try {
+            const { data: response } = await paymentAPI.getOrganizationPayments(
+                organizationId,
+                params,
+            );
+            return response.data;
+        } catch (error) {
+            return thunkAPI.rejectWithValue(getErrorMessage(error));
+        }
+    },
+);

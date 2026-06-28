@@ -28,45 +28,6 @@ import {
     TableRow,
 } from "@/components/ui/table";
 
-const payments = [
-    {
-        id: "PAY-1001",
-        invoice: "INV-1024",
-        client: "Acme Corporation",
-        date: "24 Jun 2026",
-        amount: "₹72,000",
-        method: "Bank Transfer",
-        status: "Completed",
-    },
-    {
-        id: "PAY-1002",
-        invoice: "INV-1023",
-        client: "John Doe",
-        date: "22 Jun 2026",
-        amount: "₹18,500",
-        method: "UPI",
-        status: "Completed",
-    },
-    {
-        id: "PAY-1003",
-        invoice: "INV-1021",
-        client: "Pixel Studio",
-        date: "20 Jun 2026",
-        amount: "₹15,400",
-        method: "Card",
-        status: "Pending",
-    },
-    {
-        id: "PAY-1004",
-        invoice: "INV-1019",
-        client: "Nova Digital",
-        date: "18 Jun 2026",
-        amount: "₹9,800",
-        method: "Cheque",
-        status: "Failed",
-    },
-];
-
 const getVariant = (status) => {
     switch (status) {
         case "Completed":
@@ -80,7 +41,7 @@ const getVariant = (status) => {
     }
 };
 
-const PaymentTable = () => {
+const PaymentTable = ({ payments }) => {
     return (
         <Card>
             <CardHeader>
@@ -105,63 +66,73 @@ const PaymentTable = () => {
                     </TableHeader>
 
                     <TableBody>
-                        {payments.map((payment) => (
-                            <TableRow key={payment.id}>
-                                <TableCell className="font-medium">
-                                    {payment.id}
-                                </TableCell>
+                        {payments.length ? (
+                            payments.map((payment) => (
+                                <TableRow key={payment.id}>
+                                    <TableCell className="font-medium">
+                                        {payment.id}
+                                    </TableCell>
 
-                                <TableCell>{payment.invoice}</TableCell>
+                                    <TableCell>{payment.invoice}</TableCell>
 
-                                <TableCell>{payment.client}</TableCell>
+                                    <TableCell>{payment.client}</TableCell>
 
-                                <TableCell>{payment.date}</TableCell>
+                                    <TableCell>{payment.date}</TableCell>
 
-                                <TableCell>{payment.method}</TableCell>
+                                    <TableCell>{payment.method}</TableCell>
 
-                                <TableCell className="text-right font-medium">
-                                    {payment.amount}
-                                </TableCell>
+                                    <TableCell className="text-right font-medium">
+                                        {payment.amount}
+                                    </TableCell>
 
-                                <TableCell>
-                                    <Badge variant={getVariant(payment.status)}>
-                                        {payment.status}
-                                    </Badge>
-                                </TableCell>
+                                    <TableCell>
+                                        <Badge
+                                            variant={getVariant(payment.status)}
+                                        >
+                                            {payment.status}
+                                        </Badge>
+                                    </TableCell>
 
-                                <TableCell>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon">
-                                                <MoreHorizontal className="size-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
+                                    <TableCell>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon">
+                                                    <MoreHorizontal className="size-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
 
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem>
-                                                View Payment
-                                            </DropdownMenuItem>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem>
+                                                    View Payment
+                                                </DropdownMenuItem>
 
-                                            <DropdownMenuItem>
-                                                View Invoice
-                                            </DropdownMenuItem>
+                                                <DropdownMenuItem>
+                                                    View Invoice
+                                                </DropdownMenuItem>
 
-                                            <DropdownMenuSeparator />
+                                                <DropdownMenuSeparator />
 
-                                            <DropdownMenuItem>
-                                                Download Receipt
-                                            </DropdownMenuItem>
+                                                <DropdownMenuItem>
+                                                    Download Receipt
+                                                </DropdownMenuItem>
 
-                                            <DropdownMenuSeparator />
+                                                <DropdownMenuSeparator />
 
-                                            <DropdownMenuItem className="text-destructive">
-                                                Delete Payment
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
+                                                <DropdownMenuItem className="text-destructive">
+                                                    Delete Payment
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={8} className="py-10 text-center text-muted-foreground">
+                                    No payments found.
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        )}
                     </TableBody>
                 </Table>
             </CardContent>

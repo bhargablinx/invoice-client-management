@@ -1,6 +1,6 @@
 import { CreditCard } from "lucide-react";
 
-const PaymentHeader = () => {
+const PaymentHeader = ({ organizationName }) => {
     return (
         <div>
             <div className="flex items-center gap-3">
@@ -12,6 +12,18 @@ const PaymentHeader = () => {
             <p className="mt-2 text-muted-foreground">
                 Record payments, track payment history, and reconcile invoice
                 balances.
+                {organizationName ? (
+                    <>
+                        {" "}
+                        for{" "}
+                        <span className="font-medium text-foreground">
+                            {organizationName}
+                        </span>
+                        .
+                    </>
+                ) : (
+                    "."
+                )}
             </p>
         </div>
     );

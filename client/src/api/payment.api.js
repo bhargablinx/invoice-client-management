@@ -24,3 +24,6 @@ export const deletePayment = (organizationId, invoiceId, paymentId) =>
     api.delete(
         `/organizations/${organizationId}/invoices/${invoiceId}/payments/${paymentId}`,
     );
+
+export const getOrganizationPayments = (organizationId, params = {}) =>
+    api.get(`/organizations/${organizationId}/payments`, { params });

@@ -5,6 +5,7 @@ import {
     getPayment,
     updatePayment,
     deletePayment,
+    getOrganizationPayments,
 } from "./paymentThunk";
 
 const initialState = {
@@ -73,7 +74,14 @@ export const paymentSlice = createSlice({
                     state.selectedPayment = null;
                 }
             })
-            .addCase(deletePayment.rejected, rejected);
+            .addCase(deletePayment.rejected, rejected)
+            .addCase(getOrganizationPayments.pending, pending)
+            .addCase(getOrganizationPayments.fulfilled, (state, action) => {
+                state.loading = false;
+                state.payments = action.payload?.payments ?? [];
+                state.invoiceSummary = action.payload?.summary ?? null;
+            })
+            .addCase(getOrganizationPayments.rejected, rejected);
     },
 });
 
@@ -81,4 +89,3 @@ export const { clearPaymentState, clearSelectedPayment } =
     paymentSlice.actions;
 
 export default paymentSlice.reducer;
-
