@@ -91,7 +91,7 @@ export const getOrganizationInvitations = createAsyncThunk(
         try {
             const { data: response } =
                 await organizationAPI.getInvitations(organizationId);
-            return response.data.data;
+            return response.data;
         } catch (error) {
             return thunkAPI.rejectWithValue(getErrorMessage(error));
         }
