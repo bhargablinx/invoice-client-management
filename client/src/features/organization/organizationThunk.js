@@ -72,3 +72,31 @@ export const deleteOrganization = createAsyncThunk(
         }
     },
 );
+
+export const getOrganizationMembers = createAsyncThunk(
+    "organization/getOrganizationMembers",
+    async (organizationId, thunkAPI) => {
+        try {
+            const { data: response } = await organizationAPI.getMembers(
+                organizationId,
+            );
+            return response.data;
+        } catch (error) {
+            return thunkAPI.rejectWithValue(getErrorMessage(error));
+        }
+    },
+);
+
+export const getOrganizationInvitations = createAsyncThunk(
+    "organization/getOrganizationInvitations",
+    async (organizationId, thunkAPI) => {
+        try {
+            const { data: response } = await organizationAPI.getInvitations(
+                organizationId,
+            );
+            return response.data;
+        } catch (error) {
+            return thunkAPI.rejectWithValue(getErrorMessage(error));
+        }
+    },
+);
