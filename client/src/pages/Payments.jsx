@@ -7,6 +7,7 @@ import PaymentHeader from "@/components/payments/PaymentHeader";
 import PaymentStats from "@/components/payments/PaymentStats";
 import PaymentTable from "@/components/payments/PaymentTable";
 import RecordPaymentCard from "@/components/payments/RecordPaymentCard";
+import { getInvoices } from "@/features/invoices/invoiceThunk";
 import { getOrganizationPayments } from "@/features/payments/paymentThunk";
 
 const Payments = () => {
@@ -18,6 +19,7 @@ const Payments = () => {
     const { payments, loading: paymentLoading } = useSelector(
         (state) => state.payments,
     );
+    const { invoices } = useSelector((state) => state.invoices);
     const [filters] = useState({
         search: "",
     });
@@ -29,6 +31,12 @@ const Payments = () => {
             getOrganizationPayments({
                 organizationId: activeOrganization._id,
                 params: { limit: 100, ...(filters.search ? { search: filters.search } : {}) },
+            }),
+        );
+        dispatch(
+            getInvoices({
+                organizationId: activeOrganization._id,
+                params: { limit: 100 },
             }),
         );
     }, [activeOrganization?._id, dispatch, filters.search]);
@@ -83,7 +91,18 @@ const Payments = () => {
                     <PaymentTable payments={paymentData.payments} />
                 </div>
 
-                <RecordPaymentCard payment={paymentData.preview} />
+                <RecordPaymentCard
+                    organizationId={activeOrganization._id}
+                    invoices={invoices}
+                    onPaymentCreated={() =>
+                        dispatch(
+                            getOrganizationPayments({
+                                organizationId: activeOrganization._id,
+                                params: { limit: 100 },
+                            }),
+                        )
+                    }
+                />
             </div>
         </div>
     );
