@@ -117,6 +117,9 @@ This file is a quick reference for the frontend. It lists the endpoints that are
 
 ### Payments
 
+- `GET /organizations/:organizationId/payments`
+  - Protected
+  - Roles: `owner`, `admin`, `member`
 - `POST /organizations/:organizationId/invoices/:invoiceId/payments`
   - Protected
   - Roles: `owner`, `admin`
