@@ -3,7 +3,7 @@
 > [Demo Video](https://youtu.be/L6rMdd1CJ3Q) |
 > [Live Preview](https://inclient.netlify.app)
 
-> Demo account: email: one@example.com | password: 12345678
+> Try Demo account: email: one@example.com | password: 12345678
 
 A full-stack invoice and client management application built for freelancers, consultants, and small agencies. The platform centralizes organizations, clients, invoices, payments, memberships, and invitation workflows in a single dashboard experience.
 
