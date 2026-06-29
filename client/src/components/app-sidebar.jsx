@@ -138,12 +138,12 @@ const data = {
         //     hasChild: true,
         // },
 
-        {
-            title: "Settings",
-            url: "/settings",
-            icon: <Settings />,
-            hasChild: false,
-        },
+        // {
+        //     title: "Settings",
+        //     url: "/settings",
+        //     icon: <Settings />,
+        //     hasChild: false,
+        // },
     ],
 };
 
