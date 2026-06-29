@@ -4,6 +4,27 @@ A full-stack invoice and client management application built for freelancers, co
 
 ## Overview
 
+### Preview
+
+<table>
+  <tr>
+    <td>
+      <img src="./preview/landing.png" alt="Search UI" width="100%"/>
+    </td>
+    <td>
+      <img src="./preview/dashboard.png" alt="Home" width="100%"/>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <img src="./preview/invoice.png" alt="Editor Preview" width="100%"/>
+    </td>
+    <td>
+      <img src="./preview/payment.png" alt="Dark Mode" width="100%"/>
+    </td>
+  </tr>
+</table>
+
 This repository contains two applications:
 
 - `client/` - a React + Vite frontend
