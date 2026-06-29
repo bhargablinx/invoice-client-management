@@ -85,7 +85,7 @@ const signup = asyncHandler(async (req, res) => {
         new ApiResponse(
             201,
             // verificationToken, // just for testing (remove in production)
-            "Registration Successful and Verification url sent to your email!"
+            "Registration Successful (as we don't have funds for email verification)!"
         )
     );
 });
