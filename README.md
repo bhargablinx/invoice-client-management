@@ -1,5 +1,8 @@
 # Invoice & Client Management Platform
 
+> [Demo Video](https://youtu.be/L6rMdd1CJ3Q) |
+> [Live Preview]()
+
 A full-stack invoice and client management application built for freelancers, consultants, and small agencies. The platform centralizes organizations, clients, invoices, payments, memberships, and invitation workflows in a single dashboard experience.
 
 ## Overview
